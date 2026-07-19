@@ -45,6 +45,7 @@
     --gray:#646464;
     --grad: linear-gradient(90deg, var(--xp), var(--corporate));
     --sidebar-bg: var(--dark-bg);
+    --glass-blur: 18px;
 
     --radius:14px;
     --font-display:'Inter', -apple-system, sans-serif;
@@ -97,6 +98,9 @@
   }
   .search-box svg{width:16px;height:16px; flex-shrink:0;}
   .search-box input{border:none; outline:none; background:transparent; width:100%; font-size:14px; color:var(--text-dark);}
+  .search-clear-btn{background:var(--light-bg); border:none; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; color:var(--gray); flex-shrink:0;}
+  .search-clear-btn svg{width:11px;height:11px;}
+  .search-clear-btn:hover{background:var(--light-basement); color:var(--text-dark);}
   .icon-pill-btn{
     width:40px; height:40px; border-radius:10px; background:var(--light-third); border:1px solid #DDE1EA;
     display:flex; align-items:center; justify-content:center; color:var(--dark-second); flex-shrink:0;
@@ -222,6 +226,10 @@
   .note-card-title{font-weight:700; font-size:14px; color:var(--text-dark);}
   .note-card-body{font-size:12.5px; color:var(--gray); line-height:1.5; flex:1; white-space:pre-line;}
   .note-card-date{font-size:11px; color:var(--gray); font-weight:600; margin-top:auto;}
+  .note-color-row{display:flex; gap:9px; margin-top:2px;}
+  .note-color-swatch{width:28px; height:28px; border-radius:50%; border:2px solid #E1E4EC; cursor:pointer; transition:transform .12s ease;}
+  .note-color-swatch:hover{transform:scale(1.1);}
+  .note-color-swatch.selected{box-shadow:0 0 0 2px var(--xp); border-color:var(--xp);}
 
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:12px; font-weight:700; color:var(--gray); margin-bottom:6px; letter-spacing:.2px;}
@@ -257,6 +265,9 @@
   .cat-filter-chip:active{transform:scale(.95);}
   .cat-filter-chip.selected{background:rgba(0,143,236,.1); border-color:var(--corporate); color:var(--corporate);}
   .icon-picker{display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-top:10px; padding:10px; background:var(--light-first); border:1px solid #E1E4EC; border-radius:12px;}
+  .edit-category-panel{margin-top:10px; padding:12px; background:var(--light-first); border:1px solid #E1E4EC; border-radius:12px;}
+  .edit-category-panel .icon-picker{margin-top:0; padding:0; background:transparent; border:none;}
+  #editCategoryNameInput{width:100%; padding:9px 11px; border:1px solid #E1E4EC; border-radius:9px; font-size:13.5px; background:#fff; color:var(--text-dark);}
   .icon-picker button{aspect-ratio:1; border-radius:9px; border:1.5px solid transparent; background:var(--light-third); color:var(--gray); display:flex; align-items:center; justify-content:center;}
   .icon-picker button svg{width:17px;height:17px;}
   .icon-picker button:hover{background:var(--light-bg);}
@@ -392,6 +403,8 @@
   [data-theme="dark"] .guide-item .gi-icon{ background: var(--dark-first); }
   [data-theme="dark"] .hero::after{ background: rgba(255,255,255,.05); }
   [data-theme="dark"] .icon-picker{ background: var(--dark-first); border-color: var(--dark-second); }
+  [data-theme="dark"] .edit-category-panel{ background: var(--dark-first); border-color: var(--dark-second); }
+  [data-theme="dark"] #editCategoryNameInput{ background: var(--dark-second); border-color: var(--dark-third); color: var(--text-light); }
   [data-theme="dark"] .icon-picker button{ background: var(--dark-second); color: #9AA3B2; }
   [data-theme="dark"] .icon-picker button:hover{ background: var(--dark-third); }
   [data-theme="dark"] .icon-picker button.selected{ background: rgba(98,39,224,.25); }
@@ -407,8 +420,8 @@
   [data-theme="dark"] .cat-filter-chip:hover{ background: var(--dark-second); }
   [data-theme="dark"] .note-card{ background: var(--dark-first); border-color: var(--dark-second); }
 
-  /* ---------- BACKGROUND IMAGE: automatic frosted-glass look ---------- */
-  html.has-bg-image body{ background-size:cover; background-position:center; background-repeat:no-repeat; background-attachment:fixed; }
+  /* ---------- BACKGROUND IMAGE: automatic frosted-glass look (adjustable blur) ---------- */
+  html.has-bg-image body{ background-size:cover; background-position:center; background-repeat:no-repeat; }
   html.has-bg-image .panel,
   html.has-bg-image .stat-card,
   html.has-bg-image .modal,
@@ -420,13 +433,13 @@
   html.has-bg-image .cat-filter-chip,
   html.has-bg-image .icon-picker{
     background: rgba(255,255,255,.68);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(var(--glass-blur, 18px)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur, 18px)) saturate(160%);
   }
   html.has-bg-image .sidebar{
     background: rgba(20,24,32,.55);
-    backdrop-filter: blur(22px) saturate(160%);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(calc(var(--glass-blur, 18px) + 4px)) saturate(160%);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur, 18px) + 4px)) saturate(160%);
   }
   html.has-bg-image[data-theme="dark"] .panel,
   html.has-bg-image[data-theme="dark"] .stat-card,
@@ -475,6 +488,7 @@
     <button class="nav-item" data-view="sales-history" title="Sales History"><span class="nav-icon"></span><span class="nav-label">Sales History</span></button>
     <button class="nav-item" data-view="reports" title="Analytics"><span class="nav-icon"></span><span class="nav-label">Analytics</span></button>
     <button class="nav-item" data-view="notes" title="Notes"><span class="nav-icon"></span><span class="nav-label">Notes</span></button>
+    <button class="nav-item" data-view="companies" title="Companies"><span class="nav-icon"></span><span class="nav-label">Companies</span></button>
     <div class="sidebar-spacer"></div>
     <button class="nav-item lock-btn" id="lockNowBtn" title="Lock App"><span class="nav-icon"></span><span class="nav-label">Lock App</span></button>
   </div>
@@ -484,6 +498,7 @@
       <div class="search-box">
         <span id="searchIcon"></span>
         <input type="text" id="topSearch" placeholder="Search products…" oninput="handleTopSearch(this.value)">
+        <button type="button" class="search-clear-btn" id="searchClearBtn" onclick="clearTopSearch()" style="display:none;"><span id="searchClearIcon"></span></button>
       </div>
       <button class="icon-pill-btn" id="themeToggleBtn" title="Toggle dark mode" onclick="toggleTheme()"></button>
       <div class="avatar-wrap">
@@ -529,7 +544,7 @@
           <div class="panel-head">
             <h3>All Products</h3>
             <div class="filters">
-              <input type="text" id="productSearch" placeholder="Search name, brand, SKU…" oninput="renderProducts()">
+              <input type="text" id="productSearch" placeholder="Search name, SKU, note…" oninput="renderProducts()">
             </div>
           </div>
           <input type="hidden" id="productCatFilter">
@@ -549,7 +564,11 @@
             <button id="segCompany" onclick="setSaleType('company')"><span class="seg-icon"></span>Sale for Company</button>
           </div>
           <div class="field-row">
-            <div class="field"><label id="partyLabel">Customer Name</label><input type="text" id="partyName" placeholder="e.g. Sok Dara"></div>
+            <div class="field" style="position:relative;">
+              <label id="partyLabel">Customer Name</label>
+              <input type="text" id="partyName" placeholder="e.g. Sok Dara" oninput="handlePartyInput(this.value)" onfocus="handlePartyInput(this.value)">
+              <div class="dropdown" id="partySuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
+            </div>
             <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
           </div>
           <div class="field">
@@ -557,6 +576,19 @@
             <div class="sale-items" id="saleItemsBox"></div>
             <button class="add-line-btn" onclick="addSaleLine()">＋ Add item</button>
           </div>
+          <div class="field">
+            <label>Payment Status</label>
+            <div class="seg" id="paymentStatusSeg" style="max-width:460px;">
+              <button data-status="paid" class="active" onclick="setPaymentStatus('paid')">Paid in Full</button>
+              <button data-status="partial" onclick="setPaymentStatus('partial')">Partially Paid</button>
+              <button data-status="unpaid" onclick="setPaymentStatus('unpaid')">Unpaid</button>
+            </div>
+            <div class="field" id="partialAmountRow" style="display:none; margin-top:10px; max-width:220px;">
+              <label>Amount Paid Now ($)</label>
+              <input type="number" id="partialAmountPaid" min="0" step="0.01" value="0">
+            </div>
+          </div>
+          <div class="field"><label>Note (optional)</label><input type="text" id="saleNote" placeholder="e.g. Customer will pick up next week"></div>
           <div class="sale-total"><span>Total</span><span id="saleTotalDisplay">$0.00</span></div>
           <div class="modal-actions">
             <button class="btn btn-ghost" onclick="resetSaleForm()">Clear</button>
@@ -619,6 +651,15 @@
         <div id="notesGridBox"></div>
       </div>
 
+      <!-- COMPANIES -->
+      <div class="view" id="view-companies">
+        <div class="page-head">
+          <div><div class="eyebrow">Accounts</div><h1>Companies</h1><p>Company profiles with purchase and payment status at a glance.</p></div>
+          <button class="btn btn-primary" onclick="openCompanyModal()">＋ New Company</button>
+        </div>
+        <div id="companiesGridBox"></div>
+      </div>
+
       <!-- GUIDELINES PAGE (in-app, non-blocking) -->
       <div class="view" id="view-guidelines">
         <div class="page-head">
@@ -631,6 +672,42 @@
   </div>
 </div>
 
+<!-- COMPANY MODAL -->
+<div class="modal-overlay" id="companyModalOverlay">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close-btn" onclick="closeCompanyModal()"><span id="companyModalCloseIcon"></span></button>
+    <h2 id="companyModalTitle">New Company</h2>
+    <input type="hidden" id="companyId">
+    <div class="field-row">
+      <div class="field"><label>Company Name</label><input type="text" id="companyName" placeholder="e.g. Angkor Vision Co., Ltd"></div>
+      <div class="field"><label>Phone (optional)</label><input type="text" id="companyPhone" placeholder="e.g. 012 345 678"></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="companyNotes" placeholder="e.g. Pays on the 1st of each month"></div>
+    <div id="companySalesSection" style="display:none;">
+      <div class="field"><label>Purchase History</label><div id="companySalesBox"></div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeCompanyModal()">Close</button>
+      <button class="btn btn-primary" onclick="saveCompanyProfile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModalOverlay">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close-btn" onclick="closePaymentModal()"><span id="paymentModalCloseIcon"></span></button>
+    <h2>Record Payment</h2>
+    <input type="hidden" id="paymentSaleId">
+    <p id="paymentModalInfo" style="color:var(--gray); font-size:13px; margin:-8px 0 14px;"></p>
+    <div class="field"><label>Payment Amount ($)</label><input type="number" id="paymentAmountInput" min="0" step="0.01" value="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closePaymentModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
 <!-- NOTE MODAL -->
 <div class="modal-overlay" id="noteModalOverlay">
   <div class="modal">
@@ -639,6 +716,7 @@
     <input type="hidden" id="noteId">
     <div class="field"><label>Title</label><input type="text" id="noteTitle" placeholder="e.g. Supplier reorder reminder"></div>
     <div class="field"><label>Note</label><textarea id="noteContent" rows="8" placeholder="Write your note here…" style="width:100%; padding:11px 12px; border:1px solid #E1E4EC; border-radius:11px; font-size:14px; background:var(--light-first); color:var(--text-dark); font-family:inherit; resize:vertical;"></textarea></div>
+    <div class="field"><label>Card Color</label><div class="note-color-row" id="noteColorRow"></div></div>
     <div class="modal-actions" style="justify-content:space-between;">
       <button class="btn btn-danger-ghost" id="noteDeleteBtn" onclick="deleteNoteFromModal()" style="display:none;">Delete</button>
       <div class="row-flex" style="margin-left:auto;">
@@ -656,12 +734,18 @@
     <h2 id="productModalTitle">Add Product</h2>
     <input type="hidden" id="productId">
     <div class="field"><label>Product Name</label><input type="text" id="pName" placeholder="e.g. Ray-Ban Aviator RB3025"></div>
-    <div class="field"><label>Brand</label><input type="text" id="pBrand" placeholder="e.g. Ray-Ban"></div>
     <div class="field">
       <label>Category</label>
       <div class="cat-chip-row" id="pCategoryButtons"></div>
       <input type="hidden" id="pCategory">
-      <div class="icon-picker" id="editIconPicker" style="display:none;"></div>
+      <div class="edit-category-panel" id="editCategoryPanel" style="display:none;">
+        <input type="text" id="editCategoryNameInput" placeholder="Category name" style="margin-bottom:8px;">
+        <div class="icon-picker" id="editIconPicker"></div>
+        <div class="row-flex" style="margin-top:8px; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="saveCategoryEdit()">Save Changes</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelCategoryEdit()">Cancel</button>
+        </div>
+      </div>
       <div class="inline-add" id="newCategoryRow" style="display:none;">
         <input type="text" id="newCategoryInput" placeholder="New category name">
         <button class="btn btn-ghost btn-sm" onclick="confirmNewCategory()">Add</button>
@@ -677,6 +761,7 @@
       <div class="field"><label>Cost Price ($)</label><input type="number" id="pCost" min="0" step="0.01" value="0"></div>
       <div class="field"><label>Selling Price ($)</label><input type="number" id="pPrice" min="0" step="0.01" value="0"></div>
     </div>
+    <div class="field"><label>Note (optional)</label><input type="text" id="pNote" placeholder="e.g. Discontinued soon, ask supplier before reordering"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeProductModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
@@ -745,7 +830,12 @@
         <button class="btn btn-ghost btn-sm" onclick="removeBgImage()">Remove Image</button>
       </div>
       <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="handleBgImageUpload(event)">
-      <div style="font-size:11.5px; color:var(--gray); margin-top:8px;">When a background image is set, cards get a frosted-glass look automatically so text stays readable over it.</div>
+      <div style="font-size:11.5px; color:var(--gray); margin-top:8px;">When a background image is set, cards get a frosted-glass look automatically so text stays readable over it. Large photos are automatically resized when uploaded to keep things fast.</div>
+    </div>
+
+    <div class="field">
+      <label>Glass Blur Intensity: <span id="glassBlurValue">18px</span></label>
+      <input type="range" id="glassBlurSlider" min="0" max="40" step="1" value="18" oninput="setGlassBlur(this.value)" style="width:100%;">
     </div>
 
     <div class="modal-actions">
@@ -812,8 +902,11 @@ const ICON = {
   notebook: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`,
   chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>`,
   chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+  undo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg>`,
+  cash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/></svg>`,
 };
 document.getElementById('searchIcon').innerHTML = ICON.search;
+document.getElementById('searchClearIcon').innerHTML = ICON.x;
 document.getElementById('chevIcon').innerHTML = ICON.chevron;
 document.getElementById('ddGuideIcon').innerHTML = ICON.info;
 document.getElementById('ddPinIcon').innerHTML = ICON.lock;
@@ -829,9 +922,12 @@ document.querySelector('.nav-item[data-view="sale-new"] .nav-icon').innerHTML = 
 document.querySelector('.nav-item[data-view="sales-history"] .nav-icon').innerHTML = ICON.clock;
 document.querySelector('.nav-item[data-view="reports"] .nav-icon').innerHTML = ICON.chart;
 document.querySelector('.nav-item[data-view="notes"] .nav-icon').innerHTML = ICON.notebook;
+document.querySelector('.nav-item[data-view="companies"] .nav-icon').innerHTML = ICON.briefcase;
 document.getElementById('pinLockIcon').innerHTML = ICON.lock;
 document.getElementById('productModalCloseIcon').innerHTML = ICON.x;
 document.getElementById('noteModalCloseIcon').innerHTML = ICON.x;
+document.getElementById('paymentModalCloseIcon').innerHTML = ICON.x;
+document.getElementById('companyModalCloseIcon').innerHTML = ICON.x;
 document.getElementById('confirmModalCloseIcon').innerHTML = ICON.x;
 document.querySelector('#segCustomer .seg-icon').innerHTML = ICON.person;
 document.querySelector('#segCompany .seg-icon').innerHTML = ICON.building;
@@ -1027,21 +1123,46 @@ function applyBgImage(){
     document.documentElement.classList.remove('has-bg-image');
   }
 }
+const GLASS_BLUR_KEY = 'optic_glass_blur';
+function applyGlassBlur(px){
+  document.documentElement.style.setProperty('--glass-blur', px + 'px');
+  const label = document.getElementById('glassBlurValue');
+  if(label) label.textContent = px + 'px';
+  const slider = document.getElementById('glassBlurSlider');
+  if(slider) slider.value = px;
+}
+function setGlassBlur(px){
+  localStorage.setItem(GLASS_BLUR_KEY, px);
+  applyGlassBlur(px);
+}
 function triggerBgImageUpload(){ document.getElementById('bgImageInput').click(); }
 function handleBgImageUpload(e){
   const file = e.target.files[0];
   e.target.value = '';
   if(!file) return;
   if(!file.type.startsWith('image/')){ toast('Please choose an image file'); return; }
+  toast('Processing image…');
   const reader = new FileReader();
   reader.onload = (ev)=>{
-    try{
-      localStorage.setItem(BG_IMAGE_KEY, ev.target.result);
-      applyBgImage();
-      toast('Background image set');
-    }catch(err){
-      toast("That image is too large to save — try a smaller one");
-    }
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 1600;
+      let w = img.width, h = img.height;
+      if(w > maxW){ h = Math.round(h * (maxW / w)); w = maxW; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      try{
+        localStorage.setItem(BG_IMAGE_KEY, dataUrl);
+        applyBgImage();
+        toast('Background image set');
+      }catch(err){
+        toast("That image is too large to save — try a smaller one");
+      }
+    };
+    img.onerror = ()=>toast("Couldn't read that image — try another file");
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -1061,6 +1182,7 @@ function populateThemeInputs(){
   document.getElementById('themeSidebar').value = customTheme.sidebar || rgbStringToHex(cs.getPropertyValue('--sidebar-bg')) || '#141820';
   document.getElementById('themeModeLabel').textContent = currentMode() === 'dark' ? 'Dark Mode' : 'Light Mode';
   applyUiScale(Number(localStorage.getItem(UI_SCALE_KEY)) || 1);
+  applyGlassBlur(Number(localStorage.getItem(GLASS_BLUR_KEY)) || 18);
 }
 function openThemeModal(){
   populateThemeInputs();
@@ -1072,11 +1194,12 @@ function closeThemeModal(){
 }
 applyCustomTheme();
 applyBgImage();
+applyGlassBlur(Number(localStorage.getItem(GLASS_BLUR_KEY)) || 18);
 applyUiScale(Number(localStorage.getItem(UI_SCALE_KEY)) || 1);
 
 
 /* ============ STORAGE ============ */
-const DB = { products:'optic_products', sales:'optic_sales', categories:'optic_categories', categoryIcons:'optic_category_icons', pin:'optic_pin', guidelinesSeen:'optic_guidelines_seen', notes:'optic_notes', dashboardWidgets:'optic_dashboard_widgets' };
+const DB = { products:'optic_products', sales:'optic_sales', categories:'optic_categories', categoryIcons:'optic_category_icons', pin:'optic_pin', guidelinesSeen:'optic_guidelines_seen', notes:'optic_notes', dashboardWidgets:'optic_dashboard_widgets', companies:'optic_companies' };
 function load(key){ try{ return JSON.parse(localStorage.getItem(key)) || []; }catch(e){ return []; } }
 function save(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -1088,6 +1211,7 @@ let products = load(DB.products);
 let sales = load(DB.sales);
 let categories = load(DB.categories);
 let notes = load(DB.notes);
+let companies = load(DB.companies);
 let dashboardWidgets = load(DB.dashboardWidgets);
 if(dashboardWidgets.length === 0 && !localStorage.getItem('optic_widgets_seeded')){
   dashboardWidgets = ['recent-sales'];
@@ -1155,9 +1279,9 @@ function handleImportFile(e){
 
 if(products.length === 0 && sales.length === 0 && !localStorage.getItem('optic_seeded')){
   products = [
-    {id:uid(), name:'Ray-Ban Aviator Classic', brand:'Ray-Ban', category:'Sunglasses', sku:'RB3025-L', qty:8, cost:45, price:120},
-    {id:uid(), name:'Acuvue Oasys (6-pack)', brand:'Acuvue', category:'Contact Lens', sku:'ACV-OAS-6', qty:2, cost:12, price:32},
-    {id:uid(), name:'Titanium Rimless Frame', brand:'Silhouette', category:'Frame', sku:'SIL-TR-04', qty:5, cost:60, price:150},
+    {id:uid(), name:'Ray-Ban Aviator Classic', category:'Sunglasses', sku:'RB3025-L', qty:8, cost:45, price:120},
+    {id:uid(), name:'Acuvue Oasys (6-pack)', category:'Contact Lens', sku:'ACV-OAS-6', qty:2, cost:12, price:32},
+    {id:uid(), name:'Titanium Rimless Frame', category:'Frame', sku:'SIL-TR-04', qty:5, cost:60, price:150},
   ];
   save(DB.products, products);
   localStorage.setItem('optic_seeded','1');
@@ -1381,10 +1505,11 @@ function goto(view){
   if(navBtn) navBtn.classList.add('active');
 
   const searchInput = document.getElementById('topSearch');
-  if(view==='products'){ searchInput.placeholder='Search name, brand, SKU…'; searchInput.value=''; }
+  if(view==='products'){ searchInput.placeholder='Search name, SKU, note…'; searchInput.value=''; }
   else if(view==='sales-history'){ searchInput.placeholder='Search by customer or company…'; searchInput.value=''; historyPartyFilter=''; }
   else if(view==='notes'){ searchInput.placeholder='Search notes…'; searchInput.value=''; notesSearchFilter=''; }
   else { searchInput.placeholder='Search products…'; searchInput.value=''; }
+  document.getElementById('searchClearBtn').style.display = 'none';
 
   if(view==='dashboard') renderDashboard();
   if(view==='products') renderProducts();
@@ -1392,14 +1517,22 @@ function goto(view){
   if(view==='sales-history') renderHistory();
   if(view==='reports') renderReports();
   if(view==='notes') renderNotes();
+  if(view==='companies') renderCompanies();
 }
 document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{ btn.addEventListener('click', ()=>goto(btn.dataset.view)); });
 
 let historyPartyFilter = '';
 function handleTopSearch(val){
+  document.getElementById('searchClearBtn').style.display = val ? 'flex' : 'none';
   if(currentView==='products'){ document.getElementById('productSearch').value = val; renderProducts(); }
   else if(currentView==='sales-history'){ historyPartyFilter = val.toLowerCase(); renderHistory(); }
   else if(currentView==='notes'){ notesSearchFilter = val.toLowerCase(); renderNotes(); }
+}
+function clearTopSearch(){
+  const input = document.getElementById('topSearch');
+  input.value = '';
+  handleTopSearch('');
+  input.focus();
 }
 let notesSearchFilter = '';
 
@@ -1448,7 +1581,7 @@ function deleteCategory(cat){
     if(document.getElementById('pCategory').value === cat){
       document.getElementById('pCategory').value = categories[0] || '';
     }
-    document.getElementById('editIconPicker').style.display = 'none';
+    document.getElementById('editCategoryPanel').style.display = 'none';
     refreshCategoryUI();
     renderProducts();
     showUndoToast(`"${cat}" removed`, ()=>{
@@ -1473,7 +1606,7 @@ function deleteCategory(cat){
   }
 }
 function selectCategory(cat){
-  document.getElementById('editIconPicker').style.display = 'none';
+  document.getElementById('editCategoryPanel').style.display = 'none';
   if(cat === '__new__'){
     document.getElementById('pCategory').value = '__new__';
     document.getElementById('newCategoryRow').style.display = 'flex';
@@ -1490,25 +1623,51 @@ function selectCategory(cat){
   renderCategoryButtons();
 }
 let iconPickerTargetCategory = null;
+let pendingEditIcon = 'tag';
 function openIconPickerFor(cat){
-  const picker = document.getElementById('editIconPicker');
-  const isOpenForSame = picker.style.display === 'grid' && picker.dataset.forCat === cat;
-  if(isOpenForSame){ picker.style.display = 'none'; return; }
+  const panel = document.getElementById('editCategoryPanel');
+  const isOpenForSame = panel.style.display === 'block' && panel.dataset.forCat === cat;
+  if(isOpenForSame){ panel.style.display = 'none'; return; }
   iconPickerTargetCategory = cat;
-  picker.dataset.forCat = cat;
-  renderIconPicker('editIconPicker', categoryIconKey(cat), 'pickExistingCategoryIconFor');
-  picker.style.display = 'grid';
+  pendingEditIcon = categoryIconKey(cat);
+  panel.dataset.forCat = cat;
+  document.getElementById('editCategoryNameInput').value = cat;
+  renderIconPicker('editIconPicker', pendingEditIcon, 'pickEditIcon');
+  panel.style.display = 'block';
 }
-function pickExistingCategoryIconFor(key){
-  if(!iconPickerTargetCategory) return;
-  categoryIcons[iconPickerTargetCategory] = key;
+function pickEditIcon(key){
+  pendingEditIcon = key;
+  renderIconPicker('editIconPicker', key, 'pickEditIcon');
+}
+function saveCategoryEdit(){
+  const oldName = iconPickerTargetCategory;
+  const newName = document.getElementById('editCategoryNameInput').value.trim();
+  if(!newName){ toast('Category name cannot be empty'); return; }
+  if(newName !== oldName && categories.some(c=>c.toLowerCase()===newName.toLowerCase())){
+    toast('A category with that name already exists'); return;
+  }
+  const idx = categories.indexOf(oldName);
+  if(idx!==-1) categories[idx] = newName;
+  delete categoryIcons[oldName];
+  categoryIcons[newName] = pendingEditIcon;
+  save(DB.categories, categories);
   localStorage.setItem(DB.categoryIcons, JSON.stringify(categoryIcons));
-  document.getElementById('editIconPicker').style.display = 'none';
-  renderCategoryButtons();
-  renderCategoryFilterButtons();
+  if(newName !== oldName){
+    let changed = false;
+    products.forEach(p=>{ if(p.category === oldName){ p.category = newName; changed = true; } });
+    if(changed) save(DB.products, products);
+  }
+  if(document.getElementById('pCategory').value === oldName){
+    document.getElementById('pCategory').value = newName;
+  }
+  document.getElementById('editCategoryPanel').style.display = 'none';
+  refreshCategoryUI();
   renderProducts();
   renderDashboard();
-  toast('Icon updated');
+  toast('Category updated');
+}
+function cancelCategoryEdit(){
+  document.getElementById('editCategoryPanel').style.display = 'none';
 }
 function renderIconPicker(containerId, selectedKey, handlerName){
   const box = document.getElementById(containerId);
@@ -1577,22 +1736,22 @@ function openProductModal(id){
   document.getElementById('productModalOverlay').classList.add('active');
   document.getElementById('newCategoryRow').style.display = 'none';
   document.getElementById('newCategoryIconPicker').style.display = 'none';
-  document.getElementById('editIconPicker').style.display = 'none';
+  document.getElementById('editCategoryPanel').style.display = 'none';
   refreshCategoryUI();
   if(id){
     const p = products.find(x=>x.id===id);
     document.getElementById('productModalTitle').textContent = 'Edit Product';
     document.getElementById('productId').value = p.id;
     document.getElementById('pName').value = p.name;
-    document.getElementById('pBrand').value = p.brand;
     document.getElementById('pCategory').value = p.category;
     document.getElementById('pSku').value = p.sku;
     document.getElementById('pQty').value = p.qty;
     document.getElementById('pCost').value = p.cost;
     document.getElementById('pPrice').value = p.price;
+    document.getElementById('pNote').value = p.note || '';
   } else {
     document.getElementById('productModalTitle').textContent = 'Add Product';
-    ['productId','pName','pBrand','pSku'].forEach(id=>document.getElementById(id).value='');
+    ['productId','pName','pSku','pNote'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('pCategory').value = categories[0] || '';
     document.getElementById('pQty').value = 0;
     document.getElementById('pCost').value = 0;
@@ -1609,7 +1768,8 @@ function saveProduct(){
   if(cat === '__new__'){ toast('Please confirm the new category first'); return; }
   const id = document.getElementById('productId').value;
   const data = {
-    name, brand: document.getElementById('pBrand').value.trim(), category: cat,
+    name, category: cat,
+    note: document.getElementById('pNote').value.trim(),
     sku: document.getElementById('pSku').value.trim(),
     qty: Number(document.getElementById('pQty').value) || 0,
     cost: Number(document.getElementById('pCost').value) || 0,
@@ -1636,7 +1796,7 @@ function renderProducts(){
   const search = (document.getElementById('productSearch')?.value || '').toLowerCase();
   const cat = document.getElementById('productCatFilter')?.value || '';
   let list = products.filter(p=>{
-    const matchSearch = !search || [p.name,p.brand,p.sku].join(' ').toLowerCase().includes(search);
+    const matchSearch = !search || [p.name,p.sku,p.note].join(' ').toLowerCase().includes(search);
     const matchCat = !cat || p.category === cat;
     return matchSearch && matchCat;
   });
@@ -1650,7 +1810,7 @@ function renderProducts(){
   ${list.map(p=>{
     return `<tr>
       <td>${ringHtml(p)}</td>
-      <td><strong>${p.name}</strong><div class="muted" style="font-size:12px;">${p.brand||'—'}</div></td>
+      <td><strong>${p.name}</strong>${p.note?`<div class="muted" style="font-size:12px;">${escapeHtml(p.note.slice(0,50))}${p.note.length>50?'…':''}</div>`:''}</td>
       <td>${chipHtml(categoryKey(p.category), categoryIcon(p.category))} <span style="vertical-align:middle; margin-left:4px;">${p.category}</span></td>
       <td class="mono muted">${p.sku||'—'}</td>
       <td class="right mono">${fmt(p.cost)}</td>
@@ -1667,6 +1827,7 @@ function renderProducts(){
 /* ============ SALES ============ */
 let saleType = 'customer';
 let saleLines = [];
+let currentPaymentStatus = 'paid';
 
 function setSaleType(type){
   saleType = type;
@@ -1674,6 +1835,45 @@ function setSaleType(type){
   document.getElementById('segCompany').classList.toggle('active', type==='company');
   document.getElementById('partyLabel').textContent = type==='customer' ? 'Customer Name' : 'Company Name';
   document.getElementById('partyName').placeholder = type==='customer' ? 'e.g. Sok Dara' : 'e.g. Angkor Vision Co., Ltd';
+  document.getElementById('partySuggestions').classList.remove('open');
+}
+function handlePartyInput(val){
+  const box = document.getElementById('partySuggestions');
+  if(saleType !== 'company'){ box.classList.remove('open'); return; }
+  const q = val.trim().toLowerCase();
+  const matches = companies.filter(c=>!q || c.name.toLowerCase().includes(q)).slice(0,6);
+  if(matches.length===0){ box.classList.remove('open'); return; }
+  box.innerHTML = matches.map(c=>`<button type="button" onclick="selectPartyCompany('${c.id}')">${escapeHtml(c.name)}</button>`).join('');
+  box.classList.add('open');
+}
+function selectPartyCompany(id){
+  const c = companies.find(x=>x.id===id);
+  if(c) document.getElementById('partyName').value = c.name;
+  document.getElementById('partySuggestions').classList.remove('open');
+}
+document.addEventListener('click', (e)=>{
+  const wrap = document.getElementById('partyName');
+  const box = document.getElementById('partySuggestions');
+  if(wrap && box && !wrap.contains(e.target) && !box.contains(e.target)) box.classList.remove('open');
+});
+function setPaymentStatus(status){
+  currentPaymentStatus = status;
+  document.querySelectorAll('#paymentStatusSeg button').forEach(b=>b.classList.toggle('active', b.dataset.status===status));
+  document.getElementById('partialAmountRow').style.display = status==='partial' ? 'block' : 'none';
+}
+function computePaymentStatus(amountPaid, total){
+  if(amountPaid<=0) return 'unpaid';
+  if(amountPaid>=total) return 'paid';
+  return 'partial';
+}
+function findOrCreateCompany(name){
+  let c = companies.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(!c){
+    c = {id:uid(), name, phone:'', notes:''};
+    companies.push(c);
+    save(DB.companies, companies);
+  }
+  return c;
 }
 function addSaleLine(){ saleLines.push({lineId:uid(), productId: products[0]?.id || '', qty:1, price: products[0]?.price || 0}); renderSaleLines(); }
 function removeSaleLine(lineId){ saleLines = saleLines.filter(l=>l.lineId!==lineId); renderSaleLines(); }
@@ -1702,7 +1902,12 @@ function renderSaleLines(){
   const total = saleLines.reduce((sum,l)=>sum + l.qty*l.price, 0);
   document.getElementById('saleTotalDisplay').textContent = fmt(total);
 }
-function resetSaleForm(){ saleLines=[]; document.getElementById('partyName').value=''; document.getElementById('saleDate').value = todayStr(); addSaleLine(); }
+function resetSaleForm(){
+  saleLines=[]; document.getElementById('partyName').value=''; document.getElementById('saleDate').value = todayStr();
+  setPaymentStatus('paid'); document.getElementById('partialAmountPaid').value = 0;
+  document.getElementById('saleNote').value = '';
+  addSaleLine();
+}
 function submitSale(){
   if(products.length===0){ toast('Add a product first'); return; }
   const party = document.getElementById('partyName').value.trim();
@@ -1718,11 +1923,43 @@ function submitSale(){
   items.forEach(i=>{ const p = products.find(x=>x.id===i.productId); p.qty -= i.qty; });
   save(DB.products, products);
   const now = new Date();
-  sales.push({ id: uid(), ts: now.getTime(), date, time: to12Hour(now), type: saleType,
-    party: party || (saleType==='customer' ? 'Walk-in Customer' : 'Unnamed Company'), items, total });
+  const newSaleId = uid();
+  const partyName = party || (saleType==='customer' ? 'Walk-in Customer' : 'Unnamed Company');
+  let amountPaid;
+  if(currentPaymentStatus==='paid') amountPaid = total;
+  else if(currentPaymentStatus==='unpaid') amountPaid = 0;
+  else amountPaid = Math.min(total, Math.max(0, Number(document.getElementById('partialAmountPaid').value) || 0));
+  const paymentStatus = computePaymentStatus(amountPaid, total);
+  let companyId = null;
+  if(saleType==='company' && party){
+    companyId = findOrCreateCompany(party).id;
+  }
+  sales.push({ id: newSaleId, ts: now.getTime(), date, time: to12Hour(now), type: saleType,
+    party: partyName, companyId, items, total, amountPaid, paymentStatus, note: document.getElementById('saleNote').value.trim() });
   save(DB.sales, sales);
-  toast('Sale recorded');
   resetSaleForm(); renderProducts(); renderDashboard();
+  showUndoToast('Sale recorded', ()=>{ reverseSale(newSaleId); toast('Sale undone, stock restored'); });
+}
+function reverseSale(id){
+  const idx = sales.findIndex(s=>s.id===id);
+  if(idx===-1) return;
+  const sale = sales[idx];
+  sale.items.forEach(i=>{ const p = products.find(x=>x.id===i.productId); if(p) p.qty += i.qty; });
+  sales.splice(idx, 1);
+  save(DB.products, products);
+  save(DB.sales, sales);
+  renderProducts(); renderDashboard();
+  if(currentView==='sales-history') renderHistory();
+  if(currentView==='reports') renderReports();
+}
+function undoSaleFromHistory(id){
+  const sale = sales.find(s=>s.id===id);
+  if(!sale) return;
+  showConfirm(
+    `Undo the sale to "${sale.party}" for ${fmt(sale.total)}? This restores the stock quantities and permanently removes this sale record.`,
+    ()=>{ reverseSale(id); toast('Sale undone, stock restored'); },
+    {title:'Undo this sale?', confirmLabel:'Undo Sale'}
+  );
 }
 
 /* ============ SALES HISTORY ============ */
@@ -1742,18 +1979,54 @@ function renderHistory(){
     return;
   }
   if(list.length===0){ box.innerHTML = `<div class="empty"><h4>No matching sales</h4><p>Try clearing the filters.</p></div>`; return; }
-  box.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Party</th><th>Items</th><th class="right">Total</th></tr></thead><tbody>
+  box.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Party</th><th>Items</th><th class="right">Total</th><th class="center">Payment</th><th class="center">Actions</th></tr></thead><tbody>
   ${list.map(s=>`
     <tr>
       <td class="mono">${s.date}</td>
       <td class="mono">${s.time||'—'}</td>
       <td>${s.type==='customer' ? pillHtml('corporate','Customer','person') : pillHtml('violet','Company','building')}</td>
       <td><strong>${s.party}</strong></td>
-      <td class="muted">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
+      <td class="muted">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}${s.note?`<div style="font-size:11.5px; margin-top:2px; font-style:italic;">${escapeHtml(s.note)}</div>`:''}</td>
       <td class="right mono"><strong>${fmt(s.total)}</strong></td>
+      <td class="center">${paymentPill(s)}</td>
+      <td class="center"><div class="row-flex" style="justify-content:center;">
+        ${(s.paymentStatus && s.paymentStatus!=='paid') ? `<button class="icon-btn" title="Record payment" onclick="openPaymentModal('${s.id}')">${ICON.cash}</button>` : ''}
+        <button class="icon-btn" title="Undo this sale" onclick="undoSaleFromHistory('${s.id}')">${ICON.undo}</button>
+      </div></td>
     </tr>
   `).join('')}
   </tbody></table>`;
+}
+function paymentPill(s){
+  const status = s.paymentStatus || 'paid';
+  const key = status==='paid' ? 'success' : status==='partial' ? 'attention' : 'warning';
+  const label = status==='paid' ? 'Paid' : status==='partial' ? 'Partial' : 'Unpaid';
+  return pillHtml(key, label);
+}
+function openPaymentModal(saleId){
+  const sale = sales.find(s=>s.id===saleId);
+  if(!sale) return;
+  document.getElementById('paymentSaleId').value = saleId;
+  const paid = sale.amountPaid || 0;
+  const balance = sale.total - paid;
+  document.getElementById('paymentModalInfo').textContent = `${sale.party} — Total ${fmt(sale.total)}, Paid so far ${fmt(paid)}, Balance ${fmt(balance)}`;
+  document.getElementById('paymentAmountInput').value = balance.toFixed(2);
+  document.getElementById('paymentModalOverlay').classList.add('active');
+}
+function closePaymentModal(){ document.getElementById('paymentModalOverlay').classList.remove('active'); }
+function submitPayment(){
+  const saleId = document.getElementById('paymentSaleId').value;
+  const sale = sales.find(s=>s.id===saleId);
+  if(!sale) return;
+  const amount = Number(document.getElementById('paymentAmountInput').value) || 0;
+  if(amount<=0){ toast('Enter a valid payment amount'); return; }
+  sale.amountPaid = Math.min(sale.total, (sale.amountPaid||0) + amount);
+  sale.paymentStatus = computePaymentStatus(sale.amountPaid, sale.total);
+  save(DB.sales, sales);
+  closePaymentModal();
+  renderHistory();
+  if(currentView==='reports') renderReports();
+  toast('Payment recorded');
 }
 
 /* ============ NOTES ============ */
@@ -1771,13 +2044,25 @@ function renderNotes(){
   box.innerHTML = `<div class="notes-grid">${list.map(n=>{
     const snippet = (n.content||'').slice(0,120);
     const d = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString(undefined,{month:'short', day:'numeric'}) : '';
-    return `<button type="button" class="note-card" onclick="openNoteModal('${n.id}')">
+    const colorStyle = (n.color && n.color!=='default') ? `background:${PALETTE[n.color].tint}; border-color:${PALETTE[n.color].solid}66;` : '';
+    return `<button type="button" class="note-card" style="${colorStyle}" onclick="openNoteModal('${n.id}')">
       <div class="note-card-title">${escapeHtml(n.title || 'Untitled')}</div>
       <div class="note-card-body">${escapeHtml(snippet)}${(n.content||'').length>120?'…':''}</div>
       <div class="note-card-date">${d}</div>
     </button>`;
   }).join('')}</div>`;
 }
+const NOTE_COLOR_OPTIONS = ['default','violet','pink','aquamarine','attention','corporate','warning'];
+let pendingNoteColor = 'default';
+function renderNoteColorPicker(selected){
+  const box = document.getElementById('noteColorRow');
+  box.innerHTML = NOTE_COLOR_OPTIONS.map(key=>{
+    const bg = key==='default' ? 'var(--light-third)' : PALETTE[key].tint;
+    const border = key==='default' ? '#E1E4EC' : PALETTE[key].solid;
+    return `<button type="button" class="note-color-swatch ${key===selected?'selected':''}" style="background:${bg}; border-color:${border};" onclick="pickNoteColor('${key}')"></button>`;
+  }).join('');
+}
+function pickNoteColor(key){ pendingNoteColor = key; renderNoteColorPicker(key); }
 function openNoteModal(id){
   document.getElementById('noteModalOverlay').classList.add('active');
   const delBtn = document.getElementById('noteDeleteBtn');
@@ -1787,14 +2072,17 @@ function openNoteModal(id){
     document.getElementById('noteId').value = n.id;
     document.getElementById('noteTitle').value = n.title || '';
     document.getElementById('noteContent').value = n.content || '';
+    pendingNoteColor = n.color || 'default';
     delBtn.style.display = 'inline-flex';
   } else {
     document.getElementById('noteModalTitle').textContent = 'New Note';
     document.getElementById('noteId').value = '';
     document.getElementById('noteTitle').value = '';
     document.getElementById('noteContent').value = '';
+    pendingNoteColor = 'default';
     delBtn.style.display = 'none';
   }
+  renderNoteColorPicker(pendingNoteColor);
 }
 function closeNoteModal(){ document.getElementById('noteModalOverlay').classList.remove('active'); }
 function saveNote(){
@@ -1805,10 +2093,10 @@ function saveNote(){
   const now = Date.now();
   if(id){
     const idx = notes.findIndex(n=>n.id===id);
-    notes[idx] = {...notes[idx], title, content, updatedAt: now};
+    notes[idx] = {...notes[idx], title, content, color: pendingNoteColor, updatedAt: now};
     toast('Note updated');
   } else {
-    notes.push({id: uid(), title, content, updatedAt: now});
+    notes.push({id: uid(), title, content, color: pendingNoteColor, updatedAt: now});
     toast('Note saved');
   }
   save(DB.notes, notes);
@@ -1839,6 +2127,93 @@ function deleteNote(id){
   });
 }
 
+/* ============ COMPANIES ============ */
+function companyStats(name){
+  const companySales = sales.filter(s=>s.type==='company' && s.party===name);
+  const totalPurchased = companySales.reduce((sum,s)=>sum+s.total,0);
+  const totalPaid = companySales.reduce((sum,s)=>sum+(s.amountPaid!=null?s.amountPaid:s.total),0);
+  const balance = totalPurchased - totalPaid;
+  let status = 'paid';
+  if(companySales.some(s=>(s.paymentStatus||'paid')==='unpaid')) status = 'unpaid';
+  else if(companySales.some(s=>(s.paymentStatus||'paid')==='partial')) status = 'partial';
+  return {totalPurchased, totalPaid, balance, status, saleCount: companySales.length, sales: companySales};
+}
+function renderCompanies(){
+  const box = document.getElementById('companiesGridBox');
+  if(companies.length===0){
+    box.innerHTML = `<div class="empty"><div class="chip-big">${ICON.briefcase}</div><h4>No company profiles yet</h4><p>Add a company here, or one will be created automatically the first time you record a company sale.</p><button class="btn btn-primary" onclick="openCompanyModal()">＋ New Company</button></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="notes-grid">${companies.map(c=>{
+    const stats = companyStats(c.name);
+    const key = stats.status==='paid' ? 'success' : stats.status==='partial' ? 'attention' : 'warning';
+    const label = stats.status==='paid' ? 'All Paid' : stats.status==='partial' ? 'Partially Paid' : 'Unpaid Balance';
+    return `<button type="button" class="note-card" onclick="openCompanyModal('${c.id}')">
+      <div class="note-card-title">${escapeHtml(c.name)}</div>
+      <div class="note-card-body">${stats.saleCount} purchase${stats.saleCount===1?'':'s'} · Total ${fmt(stats.totalPurchased)}${stats.balance>0?` · Balance ${fmt(stats.balance)}`:''}</div>
+      <div style="margin-top:auto;">${pillHtml(key,label)}</div>
+    </button>`;
+  }).join('')}</div>`;
+}
+function openCompanyModal(id){
+  document.getElementById('companyModalOverlay').classList.add('active');
+  const salesSection = document.getElementById('companySalesSection');
+  if(id){
+    const c = companies.find(x=>x.id===id);
+    document.getElementById('companyModalTitle').textContent = c.name;
+    document.getElementById('companyId').value = c.id;
+    document.getElementById('companyName').value = c.name;
+    document.getElementById('companyPhone').value = c.phone || '';
+    document.getElementById('companyNotes').value = c.notes || '';
+    const stats = companyStats(c.name);
+    salesSection.style.display = stats.sales.length ? 'block' : 'none';
+    document.getElementById('companySalesBox').innerHTML = stats.sales
+      .sort((a,b)=>(b.ts||0)-(a.ts||0))
+      .map(s=>`
+        <div class="list-row">
+          <div class="list-main"><div class="t1">${s.date} · ${s.time||''}</div><div class="t2">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}${s.note?` — ${escapeHtml(s.note)}`:''}</div></div>
+          <div class="list-side">
+            <div class="amt">${fmt(s.total)}</div>
+            ${paymentPill(s)}
+            ${(s.paymentStatus && s.paymentStatus!=='paid') ? `<button class="icon-btn" title="Record payment" onclick="openPaymentModal('${s.id}')">${ICON.cash}</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+  } else {
+    document.getElementById('companyModalTitle').textContent = 'New Company';
+    document.getElementById('companyId').value = '';
+    document.getElementById('companyName').value = '';
+    document.getElementById('companyPhone').value = '';
+    document.getElementById('companyNotes').value = '';
+    salesSection.style.display = 'none';
+  }
+}
+function closeCompanyModal(){ document.getElementById('companyModalOverlay').classList.remove('active'); }
+function saveCompanyProfile(){
+  const name = document.getElementById('companyName').value.trim();
+  if(!name){ toast('Enter a company name'); return; }
+  const id = document.getElementById('companyId').value;
+  const phone = document.getElementById('companyPhone').value.trim();
+  const notesVal = document.getElementById('companyNotes').value.trim();
+  if(id){
+    const c = companies.find(x=>x.id===id);
+    const oldName = c.name;
+    c.name = name; c.phone = phone; c.notes = notesVal;
+    if(oldName !== name){
+      sales.forEach(s=>{ if(s.type==='company' && s.party===oldName) s.party = name; });
+      save(DB.sales, sales);
+    }
+    toast('Company updated');
+  } else {
+    if(companies.some(c=>c.name.toLowerCase()===name.toLowerCase())){ toast('A company with that name already exists'); return; }
+    companies.push({id:uid(), name, phone, notes:notesVal});
+    toast('Company added');
+  }
+  save(DB.companies, companies);
+  closeCompanyModal();
+  renderCompanies();
+}
+
 /* ============ DASHBOARD (customizable widgets) ============ */
 const WIDGET_DEFS = {
   'recent-sales': {name:'Recent Sales', render: renderRecentSalesWidget},
@@ -1846,7 +2221,31 @@ const WIDGET_DEFS = {
   'out-of-stock': {name:'Out of Stock', render: renderOutOfStockWidget},
   'category-breakdown': {name:'Category Breakdown', render: renderCategoryBreakdownWidget},
   'notes-preview': {name:'Notes', render: renderNotesPreviewWidget},
+  'payment-status': {name:'Payment Status', render: renderPaymentStatusWidget},
+  'outstanding-balances': {name:'Outstanding Balances', render: renderOutstandingBalancesWidget},
 };
+function renderPaymentStatusWidget(){
+  if(sales.length===0) return `<p class="muted" style="font-size:13.5px;">No sales recorded yet.</p>`;
+  const counts = {paid:0, partial:0, unpaid:0};
+  sales.forEach(s=>{ counts[s.paymentStatus||'paid']++; });
+  return `<div class="stat-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:0;">
+    <div class="stat-card"><div class="label">Paid</div><div class="value">${counts.paid}</div></div>
+    <div class="stat-card"><div class="label">Partial</div><div class="value">${counts.partial}</div></div>
+    <div class="stat-card"><div class="label">Unpaid</div><div class="value">${counts.unpaid}</div></div>
+  </div>`;
+}
+function renderOutstandingBalancesWidget(){
+  const withBalance = companies.map(c=>({c, stats: companyStats(c.name)})).filter(x=>x.stats.balance>0);
+  if(withBalance.length===0) return `<p class="muted" style="font-size:13.5px;">No outstanding balances right now.</p>`;
+  withBalance.sort((a,b)=>b.stats.balance-a.stats.balance);
+  return withBalance.slice(0,6).map(({c,stats})=>`
+    <button type="button" class="list-row" style="width:100%; text-align:left; border:none; background:transparent; cursor:pointer;" onclick="openCompanyModal('${c.id}')">
+      ${chipHtml('violet', ICON.briefcase)}
+      <div class="list-main"><div class="t1">${escapeHtml(c.name)}</div></div>
+      <div class="list-side"><div class="amt">${fmt(stats.balance)}</div></div>
+    </button>
+  `).join('');
+}
 function renderRecentSalesWidget(){
   const recent = [...sales].sort((a,b)=> (b.ts||0)-(a.ts||0)).slice(0,5);
   if(recent.length===0) return `<p class="muted" style="font-size:13.5px;">No sales recorded yet.</p>`;
