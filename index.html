@@ -1258,8 +1258,8 @@ try{ categoryIcons = JSON.parse(localStorage.getItem(DB.categoryIcons)) || {}; }
 /* ============ DATA BACKUP / TRANSFER (for reinstalls & updates) ============ */
 function exportData(){
   const payload = {
-    app:'optic-stock', version:1, exportedAt:new Date().toISOString(),
-    products, sales, categories, categoryIcons
+    app:'optic-stock', version:2, exportedAt:new Date().toISOString(),
+    products, sales, categories, categoryIcons, companies, notes
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1287,22 +1287,28 @@ function handleImportFile(e){
       return;
     }
     showConfirm(
-      `This backup has ${data.products.length} product(s) and ${data.sales.length} sale(s) from ${data.exportedAt ? new Date(data.exportedAt).toLocaleDateString() : 'an earlier export'}. Importing it will replace everything currently stored on this iPad.`,
+      `This backup has ${data.products.length} product(s), ${data.sales.length} sale(s), ${(data.companies||[]).length} compan${(data.companies||[]).length===1?'y':'ies'}, and ${(data.notes||[]).length} note(s) from ${data.exportedAt ? new Date(data.exportedAt).toLocaleDateString() : 'an earlier export'}. Importing it will replace everything currently stored on this iPad.`,
       ()=>{
         products = data.products || [];
         sales = data.sales || [];
         categories = (data.categories && data.categories.length) ? data.categories : categories;
         categoryIcons = data.categoryIcons || {};
+        companies = data.companies || [];
+        notes = data.notes || [];
         save(DB.products, products);
         save(DB.sales, sales);
         save(DB.categories, categories);
         localStorage.setItem(DB.categoryIcons, JSON.stringify(categoryIcons));
+        save(DB.companies, companies);
+        save(DB.notes, notes);
         toast('Backup imported');
         refreshCategoryUI();
         renderProducts();
         renderDashboard();
         if(currentView==='sales-history') renderHistory();
         if(currentView==='reports') renderReports();
+        if(currentView==='companies') renderCompanies();
+        if(currentView==='notes') renderNotes();
       },
       {title:'Replace all data with this backup?', confirmLabel:'Import & Replace'}
     );
