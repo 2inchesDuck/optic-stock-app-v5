@@ -782,7 +782,11 @@
     <button class="modal-close-btn" onclick="closeProductModal()"><span id="productModalCloseIcon"></span></button>
     <h2 id="productModalTitle">Add Product</h2>
     <input type="hidden" id="productId">
-    <div class="field"><label>Product Name</label><input type="text" id="pName" placeholder="e.g. Ray-Ban Aviator RB3025"></div>
+    <div class="field" style="position:relative;">
+      <label>Brand Name</label>
+      <input type="text" id="pName" placeholder="e.g. Ray-Ban Aviator RB3025" oninput="handleBrandNameInput(this.value)" onfocus="handleBrandNameInput(this.value)" autocomplete="off">
+      <div class="dropdown" id="brandNameSuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
+    </div>
     <div class="field">
       <label>Category</label>
       <div class="cat-chip-row" id="pCategoryButtons"></div>
@@ -1792,6 +1796,7 @@ function openProductModal(id){
   document.getElementById('newCategoryRow').style.display = 'none';
   document.getElementById('newCategoryIconPicker').style.display = 'none';
   document.getElementById('editCategoryPanel').style.display = 'none';
+  document.getElementById('brandNameSuggestions').classList.remove('open');
   refreshCategoryUI();
   if(id){
     const p = products.find(x=>x.id===id);
@@ -1818,7 +1823,7 @@ function closeProductModal(){ document.getElementById('productModalOverlay').cla
 
 function saveProduct(){
   const name = document.getElementById('pName').value.trim();
-  if(!name){ toast('Please enter a product name'); return; }
+  if(!name){ toast('Please enter a brand name'); return; }
   let cat = document.getElementById('pCategory').value;
   if(cat === '__new__'){ toast('Please confirm the new category first'); return; }
   const id = document.getElementById('productId').value;
@@ -1906,10 +1911,27 @@ function selectPartyCompany(id){
   if(c) document.getElementById('partyName').value = c.name;
   document.getElementById('partySuggestions').classList.remove('open');
 }
+function handleBrandNameInput(val){
+  const box = document.getElementById('brandNameSuggestions');
+  const q = val.trim().toLowerCase();
+  const currentId = document.getElementById('productId').value;
+  const uniqueNames = [...new Set(products.filter(p=>p.id!==currentId).map(p=>p.name).filter(Boolean))];
+  const matches = uniqueNames.filter(n=>!q || n.toLowerCase().includes(q)).slice(0,6);
+  if(matches.length===0 || !q){ box.classList.remove('open'); return; }
+  box.innerHTML = matches.map(n=>`<button type="button" onclick="selectBrandNameSuggestion('${n.replace(/'/g,"\\'")}')">${escapeHtml(n)}</button>`).join('');
+  box.classList.add('open');
+}
+function selectBrandNameSuggestion(name){
+  document.getElementById('pName').value = name;
+  document.getElementById('brandNameSuggestions').classList.remove('open');
+}
 document.addEventListener('click', (e)=>{
   const wrap = document.getElementById('partyName');
   const box = document.getElementById('partySuggestions');
   if(wrap && box && !wrap.contains(e.target) && !box.contains(e.target)) box.classList.remove('open');
+  const brandWrap = document.getElementById('pName');
+  const brandBox = document.getElementById('brandNameSuggestions');
+  if(brandWrap && brandBox && !brandWrap.contains(e.target) && !brandBox.contains(e.target)) brandBox.classList.remove('open');
 });
 function setPaymentStatus(status){
   currentPaymentStatus = status;
@@ -1994,7 +2016,7 @@ function renderSaleLines(){
     const discountSuffix = saleDiscountType==='percent' ? '%' : '$';
     box.innerHTML = saleLines.map(line=>{
       const p = products.find(x=>x.id===line.productId);
-      const displayValue = line.searchText || (p ? p.name : '');
+      const displayValue = line.searchText || (p ? `${p.sku ? p.sku+' — ' : ''}${p.name}` : '');
       return `
       <div class="sale-item-card">
         <div style="position:relative;">
