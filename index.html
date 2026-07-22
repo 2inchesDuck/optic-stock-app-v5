@@ -296,10 +296,15 @@
   .modal h2{font-family:var(--font-display); font-size:19px; margin:0 0 18px; font-weight:800;}
   .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
 
-  .sale-items{border:1px solid #E4E7EE; border-radius:14px; overflow:hidden; margin-bottom:14px;}
-  .sale-item-row{display:grid; grid-template-columns:1fr 80px 100px 36px; gap:10px; align-items:center; padding:12px 14px; border-bottom:1px solid #F0F1F5; background:#fff;}
-  .sale-item-row:last-child{border-bottom:none;}
-  .sale-item-row select, .sale-item-row input{padding:8px 9px; font-size:12.5px; border:1px solid #E4E7EE; border-radius:8px;}
+  .sale-items{border:none; margin-bottom:14px;}
+  .sale-item-card{border:1px solid #E4E7EE; border-radius:14px; padding:12px; margin-bottom:10px; background:#fff;}
+  .sale-item-card:last-child{margin-bottom:0;}
+  .line-product-input{width:100%; padding:10px 12px; font-size:13.5px; border:1px solid #E4E7EE; border-radius:9px; background:var(--light-first); color:var(--text-dark); margin-bottom:10px;}
+  .line-suggestions{position:absolute; top:calc(100% - 6px); left:0; right:0; width:auto; z-index:30;}
+  .sale-item-fields{display:grid; grid-template-columns:64px 90px 90px 1fr 34px; gap:8px; align-items:end;}
+  .mini-label{display:block; font-size:9.5px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.3px; margin-bottom:4px;}
+  .sale-item-fields input{width:100%; padding:8px 9px; font-size:12.5px; border:1px solid #E4E7EE; border-radius:8px; background:var(--light-first); color:var(--text-dark);}
+  .line-total-display{padding:8px 9px; font-size:13px; font-weight:700; font-family:var(--font-mono); color:var(--success); background:var(--light-first); border:1px solid #E4E7EE; border-radius:8px; text-align:right;}
   .add-line-btn{width:100%; padding:11px; border:1.5px dashed #CBD0DC; background:transparent; border-radius:12px; color:var(--xp); font-weight:700; font-size:13px;}
   .add-line-btn:hover{background:rgba(98,39,224,.06);}
   .sale-total{display:flex; justify-content:space-between; align-items:baseline; padding:14px 4px 4px; font-family:var(--font-display); font-size:20px; font-weight:800;}
@@ -385,8 +390,10 @@
   [data-theme="dark"] .list-row{ border-bottom-color: var(--dark-second); }
   [data-theme="dark"] .field input, [data-theme="dark"] .field select{ background: var(--dark-first); border-color: var(--dark-second); color: var(--text-light); }
   [data-theme="dark"] .field input:focus, [data-theme="dark"] .field select:focus{ background: var(--dark-second); }
-  [data-theme="dark"] .sale-item-row{ background: var(--dark-first); border-bottom-color: var(--dark-second); }
-  [data-theme="dark"] .sale-item-row select, [data-theme="dark"] .sale-item-row input{ background: var(--dark-second); border-color: var(--dark-third); color: var(--text-light); }
+  [data-theme="dark"] .sale-item-card{ background: var(--dark-first); border-color: var(--dark-second); }
+  [data-theme="dark"] .line-product-input,
+  [data-theme="dark"] .sale-item-fields input,
+  [data-theme="dark"] .line-total-display{ background: var(--dark-second); border-color: var(--dark-third); color: var(--text-light); }
   [data-theme="dark"] .sale-items{ border-color: var(--dark-second); }
   [data-theme="dark"] .add-line-btn{ border-color: var(--dark-third); color:#C7B8F5; }
   [data-theme="dark"] .modal{ background: var(--dark-bg); }
@@ -578,7 +585,16 @@
             <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
           </div>
           <div class="field">
-            <label>Items</label>
+            <div class="row-flex" style="justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label style="margin:0;">Items</label>
+              <div class="row-flex" style="gap:8px;">
+                <span style="font-size:11.5px; color:var(--gray); font-weight:600;">Discount type:</span>
+                <div class="seg" id="saleDiscountTypeSeg" style="max-width:120px;">
+                  <button data-type="fixed" class="active" onclick="setSaleDiscountType('fixed')">$</button>
+                  <button data-type="percent" onclick="setSaleDiscountType('percent')">%</button>
+                </div>
+              </div>
+            </div>
             <div class="sale-items" id="saleItemsBox"></div>
             <button class="add-line-btn" onclick="addSaleLine()">＋ Add item</button>
           </div>
@@ -1914,31 +1930,84 @@ function findOrCreateCompany(name){
   }
   return c;
 }
-function addSaleLine(){ saleLines.push({lineId:uid(), productId: products[0]?.id || '', qty:1, price: products[0]?.price || 0}); renderSaleLines(); }
+let saleDiscountType = 'fixed'; // 'fixed' or 'percent'
+function setSaleDiscountType(type){
+  if(type === saleDiscountType) return;
+  saleDiscountType = type;
+  document.querySelectorAll('#saleDiscountTypeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
+  saleLines.forEach(l=>{ l.discount = 0; }); // reset raw discount values when switching interpretation ($ vs %)
+  renderSaleLines();
+}
+function addSaleLine(){ saleLines.push({lineId:uid(), productId: products[0]?.id || '', qty:1, price: products[0]?.price || 0, discount:0, searchText:''}); renderSaleLines(); }
 function removeSaleLine(lineId){ saleLines = saleLines.filter(l=>l.lineId!==lineId); renderSaleLines(); }
 function updateSaleLine(lineId, field, value){
   const line = saleLines.find(l=>l.lineId===lineId); if(!line) return;
-  if(field==='productId'){ line.productId = value; const p = products.find(x=>x.id===value); line.price = p ? p.price : 0; }
-  else if(field==='qty'){ line.qty = Math.max(1, Number(value)||1); }
-  else if(field==='price'){ line.price = Number(value)||0; }
+  if(field==='qty'){ line.qty = Math.max(1, Number(value)||1); }
+  else if(field==='price'){ line.price = Math.max(0, Number(value)||0); }
+  else if(field==='discount'){ line.discount = Math.max(0, Number(value)||0); }
   renderSaleLines();
 }
+function lineSubtotal(line){ return (line.qty||0) * (line.price||0); }
+function lineTotalAfterDiscount(line){
+  const subtotal = lineSubtotal(line);
+  const discount = Number(line.discount)||0;
+  let after = saleDiscountType==='percent' ? subtotal - (subtotal * Math.min(discount,100) / 100) : subtotal - discount;
+  return Math.max(0, after);
+}
+function handleLineProductSearch(lineId, value){
+  const line = saleLines.find(l=>l.lineId===lineId);
+  if(!line) return;
+  line.searchText = value;
+  const box = document.getElementById(`lineSuggestions-${lineId}`);
+  if(!box) return;
+  const q = value.trim().toLowerCase();
+  const matches = products.filter(p=>!q || p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q)).slice(0,6);
+  if(matches.length===0){ box.classList.remove('open'); return; }
+  box.innerHTML = matches.map(p=>`<button type="button" onclick="selectLineProduct('${lineId}','${p.id}')">${escapeHtml(p.name)} <span style="color:var(--gray); font-weight:500;">(${p.qty} in stock · ${fmt(p.price)})</span></button>`).join('');
+  box.classList.add('open');
+}
+function selectLineProduct(lineId, productId){
+  const line = saleLines.find(l=>l.lineId===lineId);
+  if(!line) return;
+  const p = products.find(x=>x.id===productId);
+  line.productId = productId;
+  line.price = p ? p.price : 0;
+  line.searchText = '';
+  renderSaleLines();
+}
+document.addEventListener('click', (e)=>{
+  document.querySelectorAll('.line-suggestions.open').forEach(box=>{
+    const input = box.previousElementSibling;
+    if(!box.contains(e.target) && input !== e.target) box.classList.remove('open');
+  });
+});
 function renderSaleLines(){
   const box = document.getElementById('saleItemsBox');
   if(saleLines.length===0){ box.innerHTML = `<div style="padding:16px; text-align:center; color:var(--gray); font-size:13px;">No items added yet.</div>`; }
   else {
-    box.innerHTML = saleLines.map(line=>`
-      <div class="sale-item-row">
-        <select onchange="updateSaleLine('${line.lineId}','productId',this.value)">
-          ${products.map(p=>`<option value="${p.id}" ${p.id===line.productId?'selected':''}>${p.name} (${p.qty} in stock)</option>`).join('')}
-        </select>
-        <input type="number" min="1" value="${line.qty}" onchange="updateSaleLine('${line.lineId}','qty',this.value)">
-        <input type="number" min="0" step="0.01" value="${line.price}" onchange="updateSaleLine('${line.lineId}','price',this.value)">
-        <button class="icon-btn" onclick="removeSaleLine('${line.lineId}')">✕</button>
+    const discountSuffix = saleDiscountType==='percent' ? '%' : '$';
+    box.innerHTML = saleLines.map(line=>{
+      const p = products.find(x=>x.id===line.productId);
+      const displayValue = line.searchText || (p ? p.name : '');
+      return `
+      <div class="sale-item-card">
+        <div style="position:relative;">
+          <input type="text" class="line-product-input" placeholder="Search product by name or SKU…" value="${escapeHtml(displayValue)}"
+            oninput="handleLineProductSearch('${line.lineId}', this.value)" onfocus="handleLineProductSearch('${line.lineId}', this.value)">
+          <div class="dropdown line-suggestions" id="lineSuggestions-${line.lineId}"></div>
+        </div>
+        <div class="sale-item-fields">
+          <div><label class="mini-label">Qty</label><input type="number" min="1" value="${line.qty}" onchange="updateSaleLine('${line.lineId}','qty',this.value)"></div>
+          <div><label class="mini-label">Price ($)</label><input type="number" min="0" step="0.01" value="${line.price}" onchange="updateSaleLine('${line.lineId}','price',this.value)"></div>
+          <div><label class="mini-label">Discount (${discountSuffix})</label><input type="number" min="0" step="0.01" value="${line.discount||0}" onchange="updateSaleLine('${line.lineId}','discount',this.value)"></div>
+          <div><label class="mini-label">After Discount</label><div class="line-total-display">${fmt(lineTotalAfterDiscount(line))}</div></div>
+          <button class="icon-btn" title="Remove item" onclick="removeSaleLine('${line.lineId}')">${ICON.x}</button>
+        </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
-  const total = saleLines.reduce((sum,l)=>sum + l.qty*l.price, 0);
+  const total = saleLines.reduce((sum,l)=>sum + lineTotalAfterDiscount(l), 0);
   document.getElementById('saleTotalDisplay').textContent = fmt(total);
 }
 function resetSaleForm(){
@@ -1957,8 +2026,11 @@ function submitSale(){
     const p = products.find(x=>x.id===line.productId);
     if(!p || p.qty < line.qty){ toast(`Not enough stock for "${p ? p.name : 'item'}" (only ${p?p.qty:0} left)`); return; }
   }
-  const items = validLines.map(l=>{ const p = products.find(x=>x.id===l.productId); return {productId:p.id, name:p.name, qty:l.qty, price:l.price}; });
-  const total = items.reduce((s,i)=>s+i.qty*i.price,0);
+  const items = validLines.map(l=>{
+    const p = products.find(x=>x.id===l.productId);
+    return {productId:p.id, name:p.name, qty:l.qty, price:l.price, discount:Number(l.discount)||0, discountType:saleDiscountType, lineTotal: lineTotalAfterDiscount(l)};
+  });
+  const total = items.reduce((s,i)=>s+i.lineTotal,0);
   items.forEach(i=>{ const p = products.find(x=>x.id===i.productId); p.qty -= i.qty; });
   save(DB.products, products);
   const now = new Date();
