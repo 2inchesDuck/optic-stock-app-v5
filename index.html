@@ -1961,9 +1961,15 @@ function handleLineProductSearch(lineId, value){
   const box = document.getElementById(`lineSuggestions-${lineId}`);
   if(!box) return;
   const q = value.trim().toLowerCase();
-  const matches = products.filter(p=>!q || p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q)).slice(0,6);
+  let matches = products.filter(p=>!q || p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q));
+  matches.sort((a,b)=>{
+    const aSku = q && (a.sku||'').toLowerCase().includes(q) ? 0 : 1;
+    const bSku = q && (b.sku||'').toLowerCase().includes(q) ? 0 : 1;
+    return aSku - bSku;
+  });
+  matches = matches.slice(0,6);
   if(matches.length===0){ box.classList.remove('open'); return; }
-  box.innerHTML = matches.map(p=>`<button type="button" onclick="selectLineProduct('${lineId}','${p.id}')">${escapeHtml(p.name)} <span style="color:var(--gray); font-weight:500;">(${p.qty} in stock · ${fmt(p.price)})</span></button>`).join('');
+  box.innerHTML = matches.map(p=>`<button type="button" onclick="selectLineProduct('${lineId}','${p.id}')"><strong class="mono">${escapeHtml(p.sku||'—')}</strong> — ${escapeHtml(p.name)} <span style="color:var(--gray); font-weight:500;">(${p.qty} in stock · ${fmt(p.price)})</span></button>`).join('');
   box.classList.add('open');
 }
 function selectLineProduct(lineId, productId){
