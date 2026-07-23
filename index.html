@@ -569,7 +569,7 @@
       <!-- NEW SALE -->
       <div class="view" id="view-sale-new">
         <div class="page-head">
-          <div><div class="eyebrow">Point of Sale</div><h1>New Sale</h1><p>Record a sale to a walk-in customer or a company account.</p></div>
+          <div><div class="eyebrow" id="saleFormEyebrow">Point of Sale</div><h1 id="saleFormTitle">New Sale</h1><p id="saleFormSubtitle">Record a sale to a walk-in customer or a company account.</p></div>
         </div>
         <div class="panel" style="max-width:880px; padding:30px 32px;">
           <div class="seg" style="max-width:460px;">
@@ -613,8 +613,8 @@
           <div class="field"><label>Note (optional)</label><input type="text" id="saleNote" placeholder="e.g. Customer will pick up next week"></div>
           <div class="sale-total"><span>Total</span><span id="saleTotalDisplay">$0.00</span></div>
           <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="resetSaleForm()">Clear</button>
-            <button class="btn btn-primary" onclick="submitSale()">Save Sale</button>
+            <button class="btn btn-ghost" onclick="clearSaleForm()">Clear</button>
+            <button class="btn btn-primary" id="saveSaleBtn" onclick="submitSale()">Save Sale</button>
           </div>
         </div>
       </div>
@@ -1572,7 +1572,12 @@ function goto(view){
 
   if(view==='dashboard') renderDashboard();
   if(view==='products') renderProducts();
-  if(view==='sale-new'){ if(!document.getElementById('saleDate').value) document.getElementById('saleDate').value = todayStr(); if(saleLines.length===0) addSaleLine(); }
+  if(view==='sale-new'){
+    editingSaleId = null;
+    updateSaleFormModeUI(false);
+    if(!document.getElementById('saleDate').value) document.getElementById('saleDate').value = todayStr();
+    if(saleLines.length===0) addSaleLine();
+  }
   if(view==='sales-history') renderHistory();
   if(view==='reports') renderReports();
   if(view==='notes') renderNotes();
@@ -1888,6 +1893,7 @@ function renderProducts(){
 let saleType = 'customer';
 let saleLines = [];
 let currentPaymentStatus = 'paid';
+let editingSaleId = null;
 
 function setSaleType(type){
   saleType = type;
@@ -1960,7 +1966,7 @@ function setSaleDiscountType(type){
   saleLines.forEach(l=>{ l.discount = 0; }); // reset raw discount values when switching interpretation ($ vs %)
   renderSaleLines();
 }
-function addSaleLine(){ saleLines.push({lineId:uid(), productId: products[0]?.id || '', qty:1, price: products[0]?.price || 0, discount:0, searchText:''}); renderSaleLines(); }
+function addSaleLine(){ saleLines.push({lineId:uid(), productId:'', qty:1, price:0, discount:0, searchText:''}); renderSaleLines(); }
 function removeSaleLine(lineId){ saleLines = saleLines.filter(l=>l.lineId!==lineId); renderSaleLines(); }
 function updateSaleLine(lineId, field, value){
   const line = saleLines.find(l=>l.lineId===lineId); if(!line) return;
@@ -2044,25 +2050,67 @@ function resetSaleForm(){
   document.getElementById('saleNote').value = '';
   addSaleLine();
 }
+function updateSaleFormModeUI(isEditing){
+  document.getElementById('saleFormEyebrow').textContent = isEditing ? 'Editing Sale' : 'Point of Sale';
+  document.getElementById('saleFormTitle').textContent = isEditing ? 'Edit Sale' : 'New Sale';
+  document.getElementById('saleFormSubtitle').textContent = isEditing ? 'Update the details of this sale, then save your changes.' : 'Record a sale to a walk-in customer or a company account.';
+  document.getElementById('saveSaleBtn').textContent = isEditing ? 'Update Sale' : 'Save Sale';
+}
+function clearSaleForm(){
+  editingSaleId = null;
+  updateSaleFormModeUI(false);
+  resetSaleForm();
+}
+function editSaleFromHistory(id){
+  const sale = sales.find(s=>s.id===id);
+  if(!sale) return;
+  goto('sale-new');
+  editingSaleId = id;
+  updateSaleFormModeUI(true);
+  setSaleType(sale.type);
+  document.getElementById('partyName').value = sale.party;
+  document.getElementById('saleDate').value = sale.date;
+  document.getElementById('saleNote').value = sale.note || '';
+  saleDiscountType = (sale.items[0] && sale.items[0].discountType) || 'fixed';
+  document.querySelectorAll('#saleDiscountTypeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.type===saleDiscountType));
+  saleLines = sale.items.map(i=>({lineId:uid(), productId:i.productId, qty:i.qty, price:i.price, discount:i.discount||0, searchText:''}));
+  renderSaleLines();
+  setPaymentStatus(sale.paymentStatus || 'paid');
+  if((sale.paymentStatus||'paid')==='partial'){ document.getElementById('partialAmountPaid').value = sale.amountPaid || 0; }
+  toast('Editing sale — update the details and tap Update Sale');
+}
 function submitSale(){
   if(products.length===0){ toast('Add a product first'); return; }
   const party = document.getElementById('partyName').value.trim();
   const date = document.getElementById('saleDate').value || todayStr();
   const validLines = saleLines.filter(l=>l.productId && l.qty>0);
   if(validLines.length===0){ toast('Add at least one item'); return; }
+
+  const oldSale = editingSaleId ? sales.find(s=>s.id===editingSaleId) : null;
+  // Build a simulated stock map: current stock + whatever this sale (if editing) already has reserved
+  const simulatedQty = {};
+  products.forEach(p=>{ simulatedQty[p.id] = p.qty; });
+  if(oldSale){ oldSale.items.forEach(i=>{ simulatedQty[i.productId] = (simulatedQty[i.productId]||0) + i.qty; }); }
   for(const line of validLines){
-    const p = products.find(x=>x.id===line.productId);
-    if(!p || p.qty < line.qty){ toast(`Not enough stock for "${p ? p.name : 'item'}" (only ${p?p.qty:0} left)`); return; }
+    const avail = simulatedQty[line.productId] ?? 0;
+    if(avail < line.qty){
+      const p = products.find(x=>x.id===line.productId);
+      toast(`Not enough stock for "${p ? p.name : 'item'}" (only ${avail} available)`);
+      return;
+    }
   }
+
   const items = validLines.map(l=>{
     const p = products.find(x=>x.id===l.productId);
-    return {productId:p.id, name:p.name, qty:l.qty, price:l.price, discount:Number(l.discount)||0, discountType:saleDiscountType, lineTotal: lineTotalAfterDiscount(l)};
+    return {productId:p.id, name:p.name, sku:p.sku||'', qty:l.qty, price:l.price, discount:Number(l.discount)||0, discountType:saleDiscountType, lineTotal: lineTotalAfterDiscount(l)};
   });
   const total = items.reduce((s,i)=>s+i.lineTotal,0);
+
+  // Commit stock changes: restore old reservation first (if editing), then deduct new
+  if(oldSale){ oldSale.items.forEach(i=>{ const p = products.find(x=>x.id===i.productId); if(p) p.qty += i.qty; }); }
   items.forEach(i=>{ const p = products.find(x=>x.id===i.productId); p.qty -= i.qty; });
   save(DB.products, products);
-  const now = new Date();
-  const newSaleId = uid();
+
   const partyName = party || (saleType==='customer' ? 'Walk-in Customer' : 'Unnamed Company');
   let amountPaid;
   if(currentPaymentStatus==='paid') amountPaid = total;
@@ -2073,11 +2121,24 @@ function submitSale(){
   if(saleType==='company' && party){
     companyId = findOrCreateCompany(party).id;
   }
-  sales.push({ id: newSaleId, ts: now.getTime(), date, time: to12Hour(now), type: saleType,
-    party: partyName, companyId, items, total, amountPaid, paymentStatus, note: document.getElementById('saleNote').value.trim() });
-  save(DB.sales, sales);
-  resetSaleForm(); renderProducts(); renderDashboard();
-  showUndoToast('Sale recorded', ()=>{ reverseSale(newSaleId); toast('Sale undone, stock restored'); });
+  const note = document.getElementById('saleNote').value.trim();
+
+  if(oldSale){
+    Object.assign(oldSale, { date, type: saleType, party: partyName, companyId, items, total, amountPaid, paymentStatus, note, editedAt: Date.now() });
+    save(DB.sales, sales);
+    renderProducts(); renderDashboard();
+    clearSaleForm();
+    toast('Sale updated');
+    goto('sales-history');
+  } else {
+    const now = new Date();
+    const newSaleId = uid();
+    sales.push({ id: newSaleId, ts: now.getTime(), date, time: to12Hour(now), type: saleType,
+      party: partyName, companyId, items, total, amountPaid, paymentStatus, note });
+    save(DB.sales, sales);
+    resetSaleForm(); renderProducts(); renderDashboard();
+    showUndoToast('Sale recorded', ()=>{ reverseSale(newSaleId); toast('Sale undone, stock restored'); });
+  }
 }
 function reverseSale(id){
   const idx = sales.findIndex(s=>s.id===id);
@@ -2120,23 +2181,30 @@ function renderHistory(){
     return;
   }
   if(list.length===0){ box.innerHTML = `<div class="empty"><h4>No matching sales</h4><p>Try clearing the filters.</p></div>`; return; }
-  box.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Party</th><th>Items</th><th class="right">Total</th><th class="center">Payment</th><th class="center">Actions</th></tr></thead><tbody>
+  box.innerHTML = `<table><thead><tr><th>Date</th><th>Time</th><th>Brand Name</th><th>SKU</th><th>Type</th><th>Party</th><th class="right">Total</th><th class="center">Payment</th><th class="center">Actions</th></tr></thead><tbody>
   ${list.map(s=>`
     <tr>
       <td class="mono">${s.date}</td>
       <td class="mono">${s.time||'—'}</td>
+      <td class="muted">${s.items.map(i=>`${escapeHtml(i.name)} ×${i.qty}`).join('<br>')}${s.note?`<div style="font-size:11.5px; margin-top:2px; font-style:italic;">${escapeHtml(s.note)}</div>`:''}</td>
+      <td class="mono muted">${s.items.map(i=>escapeHtml(itemSkuDisplay(i))).join('<br>')}</td>
       <td>${s.type==='customer' ? pillHtml('corporate','Customer','person') : pillHtml('violet','Company','building')}</td>
       <td><strong>${s.party}</strong></td>
-      <td class="muted">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}${s.note?`<div style="font-size:11.5px; margin-top:2px; font-style:italic;">${escapeHtml(s.note)}</div>`:''}</td>
       <td class="right mono"><strong>${fmt(s.total)}</strong></td>
       <td class="center">${paymentPill(s)}</td>
       <td class="center"><div class="row-flex" style="justify-content:center;">
+        <button class="icon-btn" title="Edit sale" onclick="editSaleFromHistory('${s.id}')">${ICON.pencil}</button>
         ${(s.paymentStatus && s.paymentStatus!=='paid') ? `<button class="icon-btn" title="Record payment" onclick="openPaymentModal('${s.id}')">${ICON.cash}</button>` : ''}
         <button class="icon-btn" title="Undo this sale" onclick="undoSaleFromHistory('${s.id}')">${ICON.undo}</button>
       </div></td>
     </tr>
   `).join('')}
   </tbody></table>`;
+}
+function itemSkuDisplay(item){
+  if(item.sku) return item.sku;
+  const p = products.find(x=>x.id===item.productId);
+  return (p && p.sku) ? p.sku : '—';
 }
 function paymentPill(s){
   const status = s.paymentStatus || 'paid';
