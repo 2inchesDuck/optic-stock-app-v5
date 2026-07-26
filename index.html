@@ -55,7 +55,7 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
   html,body{height:100%; position:fixed; inset:0; overflow:hidden; width:100%;}
   body{
-    margin:0; background:var(--light-bg); color:var(--text-dark);
+    margin:0; background:var(--light-basement); color:var(--text-dark);
     font-family:var(--font-body); -webkit-font-smoothing:antialiased;
     overscroll-behavior:none;
     transition:background .25s ease, color .25s ease;
@@ -70,21 +70,21 @@
 
   /* ---------- SIDEBAR (icon pill, dark) ---------- */
   .sidebar{
-    width:216px; flex-shrink:0; background:var(--sidebar-bg);
-    border-radius:16px; display:flex; flex-direction:column;
-    padding:20px 14px; gap:3px;
+    width:76px; flex-shrink:0; background:var(--sidebar-bg);
+    border-radius:20px; display:flex; flex-direction:column; align-items:center;
+    padding:22px 0; gap:10px;
   }
   .nav-item{
-    width:100%; height:auto; border-radius:10px; display:flex; align-items:center; gap:12px;
-    padding:11px 14px; color:#8B93A7; border:none; background:transparent;
-    transition:background .15s ease, color .15s ease;
-    justify-content:flex-start;
+    width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    padding:0; color:#8B93A7; border:none; background:rgba(255,255,255,.05);
+    transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+    flex-shrink:0;
   }
   .nav-item .nav-icon{width:19px; height:19px; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
-  .nav-item .nav-label{font-size:13.5px; font-weight:600; white-space:nowrap; font-family:var(--font-body);}
-  .nav-item:hover{background:rgba(255,255,255,.06); color:#EDEFF3;}
+  .nav-item .nav-label{display:none;}
+  .nav-item:hover{background:rgba(255,255,255,.12); color:#EDEFF3;}
   .nav-item:active{opacity:.8;}
-  .nav-item.active{background:#fff; color:var(--dark-bg);}
+  .nav-item.active{background:rgba(255,255,255,.1); color:#fff; box-shadow:0 0 0 2px #fff;}
   .sidebar-spacer{flex:1;}
   .nav-item.lock-btn{color:#6B7280;}
   .nav-item.lock-btn:hover{color:var(--warning); background:rgba(252,77,100,.12);}
@@ -134,17 +134,30 @@
   .dropdown button.danger svg{color:var(--warning);}
   .dropdown hr{border:none; border-top:1px solid #EEF0F4; margin:6px 4px;}
 
-  .main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px;}
+  .main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--light-bg); border-radius:20px; padding:22px;}
   .view{display:none;}
   .view.active{display:block; animation:rise .28s ease;}
+  #view-products.active{display:flex; flex-direction:column; height:100%;}
   @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  .products-fixed-head{flex-shrink:0;}
+  .products-scroll-area{flex:1; min-height:0; display:flex; flex-direction:column;}
+  #productsPanel{
+    margin-bottom:0; border-radius:18px; flex:1; min-height:0;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; -ms-overflow-style:none;
+  }
+  #productsPanel::-webkit-scrollbar{display:none;}
+  #view-products thead th{position:sticky; top:0; background:var(--light-third); z-index:2;}
+  .content-fade{animation:contentFade .22s ease;}
+  @keyframes contentFade{from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:none;}}
 
   .page-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:18px; gap:16px; flex-wrap:wrap;}
   .page-head h1{font-family:var(--font-display); font-size:25px; font-weight:800; margin:0 0 4px;}
   .page-head p{margin:0; color:var(--gray); font-size:13.5px;}
   .eyebrow{font-size:11px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:var(--xp); margin-bottom:6px;}
 
-  .btn{display:inline-flex; align-items:center; gap:8px; border:none; border-radius:12px; padding:11px 18px; font-size:14px; font-weight:700; transition:all .18s cubic-bezier(.4,0,.2,1);}
+  .btn{display:inline-flex; align-items:center; gap:8px; border:none; border-radius:10px; padding:11px 18px; font-size:14px; font-weight:700; transition:all .18s cubic-bezier(.4,0,.2,1);}
   .btn:hover{transform:translateY(-1px);}
   .btn:active{transform:scale(.96);}
   .btn-primary{background:var(--grad); color:#fff;}
@@ -153,7 +166,7 @@
   .btn-ghost{background:var(--light-third); color:var(--text-dark); border:1px solid #DDE1EA;}
   .btn-ghost:hover{background:var(--light-first);}
   .btn-danger-ghost{background:#fff; color:var(--warning); border:1px solid #F4CBD2;}
-  .btn-sm{padding:7px 12px; font-size:12.5px; border-radius:9px;}
+  .btn-sm{padding:7px 12px; font-size:12.5px; border-radius:10px;}
   .btn-block{width:100%; justify-content:center;}
 
   .hero{
@@ -167,14 +180,14 @@
 
   .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px;}
   .stat-card{background:var(--light-third); border:1px solid #E4E7EE; border-radius:var(--radius); padding:18px 20px;}
-  .stat-card-clickable{width:100%; text-align:left; cursor:pointer; font-family:inherit; transition:all .15s cubic-bezier(.4,0,.2,1);}
+  .stat-card-clickable{width:100%; text-align:left; cursor:pointer; font-family:inherit; color:inherit; transition:all .15s cubic-bezier(.4,0,.2,1);}
   .stat-card-clickable:hover{border-color:var(--xp); transform:translateY(-2px); box-shadow:0 6px 16px rgba(20,24,32,.08);}
   .stat-card-clickable:active{transform:scale(.98);}
   .stat-card .label{font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--gray);}
-  .stat-card .value{font-family:var(--font-display); font-size:24px; font-weight:800; margin-top:8px;}
+  .stat-card .value{font-family:var(--font-display); font-size:24px; font-weight:800; margin-top:8px; color:var(--text-dark);}
   .stat-card .sub{font-size:12px; color:var(--gray); margin-top:4px;}
 
-  .panel{background:var(--light-third); border:1px solid #E4E7EE; border-radius:var(--radius); padding:20px; margin-bottom:18px; transition:background .25s ease, border-color .25s ease;}
+  .panel{background:var(--light-third); border:1px solid #E4E7EE; border-radius:18px; padding:20px; margin-bottom:18px; transition:background .25s ease, border-color .25s ease; box-shadow:0 1px 2px rgba(20,24,32,.03);}
   .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px; flex-wrap:wrap;}
   .panel-head h3{font-family:var(--font-display); font-size:16.5px; margin:0; font-weight:800;}
 
@@ -185,19 +198,20 @@
   .chip{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-weight:800; font-family:var(--font-display); font-size:14px; flex-shrink:0; transition:transform .18s cubic-bezier(.4,0,.2,1);}
   .list-row:hover .chip{transform:scale(1.05);}
   .list-main{flex:1; min-width:0;}
-  .list-main .t1{font-weight:700; font-size:13.5px;}
+  .list-main .t1{font-weight:700; font-size:13.5px; color:var(--text-dark);}
   .list-main .t2{font-size:12px; color:var(--gray); margin-top:1px;}
   .list-side{text-align:right; flex-shrink:0;}
-  .list-side .amt{font-family:var(--font-mono); font-weight:600; font-size:13.5px;}
+  .list-side .amt{font-family:var(--font-mono); font-weight:600; font-size:13.5px; color:var(--text-dark);}
+  button.list-row{color:inherit; text-align:left; background:transparent; border:none; font-family:inherit; width:100%; cursor:pointer;}
 
   .pill{display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:100px; font-size:11px; font-weight:700; white-space:nowrap;}
   .pill-dot{width:6px;height:6px;border-radius:50%; flex-shrink:0;}
 
-  table{width:100%; border-collapse:collapse; font-size:13.5px;}
-  thead th{text-align:left; font-size:10.5px; letter-spacing:.8px; text-transform:uppercase; color:var(--gray); font-weight:700; padding:0 12px 10px; border-bottom:1px solid #E4E7EE;}
-  tbody td{padding:12px; border-bottom:1px solid #F0F1F5; vertical-align:middle; transition:background .12s ease;}
-  tbody tr:last-child td{border-bottom:none;}
-  tbody tr{transition:background .12s ease;}
+  table{width:100%; border-collapse:separate; border-spacing:0; font-size:13.5px;}
+  thead th{text-align:left; font-size:13px; letter-spacing:0; text-transform:none; color:var(--text-dark); font-weight:700; padding:0 14px 14px;}
+  tbody td{padding:14px; border-top:1px solid #F0F1F5; vertical-align:middle; transition:background .12s ease;}
+  tbody tr:first-child td{border-top:none;}
+  tbody tr{transition:background .12s ease; border-radius:12px;}
   tbody tr:hover{background:var(--light-first);}
   .mono{font-family:var(--font-mono); font-size:12.5px;}
   .muted{color:var(--gray);}
@@ -205,7 +219,7 @@
   .center{text-align:center;}
   .row-flex{display:flex; align-items:center; gap:8px;}
 
-  .icon-btn{background:transparent; border:1px solid #E4E7EE; border-radius:9px; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; color:var(--gray); transition:all .16s cubic-bezier(.4,0,.2,1);}
+  .icon-btn{background:transparent; border:1px solid #E4E7EE; border-radius:10px; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; color:var(--gray); transition:all .16s cubic-bezier(.4,0,.2,1);}
   .icon-btn svg{width:15px;height:15px;}
   .icon-btn:hover{background:var(--light-first); color:var(--text-dark); transform:translateY(-1px);}
   .icon-btn:active{transform:scale(.88);}
@@ -239,9 +253,42 @@
   .note-color-swatch.selected{box-shadow:0 0 0 2px var(--xp); border-color:var(--xp);}
 
   .field{margin-bottom:14px;}
+
+  /* ---------- NEW SALE: fit within one screen, no page scroll ---------- */
+  #view-sale-new.active{display:flex; flex-direction:column; height:100%; min-height:0;}
+  #view-sale-new .page-head{flex-shrink:0; margin-bottom:12px;}
+  #view-sale-new .sale-form-panel{
+    flex:1; min-height:0; display:flex; flex-direction:column;
+    padding:18px 24px; overflow:hidden;
+  }
+  #view-sale-new .sale-form-fixed{flex-shrink:0;}
+  #view-sale-new .sale-form-fixed .field{margin-bottom:10px;}
+  #view-sale-new .sale-items-field{
+    flex:1; min-height:64px; display:flex; flex-direction:column; margin-bottom:10px;
+  }
+  #view-sale-new .sale-items{flex:1; min-height:0; overflow-y:auto; padding-right:2px; margin-bottom:8px;}
+  #view-sale-new .add-line-btn{flex-shrink:0;}
+  #view-sale-new .sale-total{padding:10px 4px 2px;}
+  #view-sale-new .modal-actions{margin-top:10px;}
   .field label{display:block; font-size:12px; font-weight:700; color:var(--gray); margin-bottom:6px; letter-spacing:.2px;}
-  .field input, .field select{width:100%; padding:11px 12px; border:1px solid #E1E4EC; border-radius:11px; font-size:14px; background:var(--light-first); color:var(--text-dark);}
+  .field input, .field select{width:100%; padding:11px 12px; border:1px solid #E1E4EC; border-radius:10px; font-size:14px; background:var(--light-first); color:var(--text-dark);}
   .field input[type="color"]{padding:4px; height:44px; cursor:pointer;}
+  input[type="range"]{
+    -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:99px;
+    background:var(--light-bg); outline:none; margin:8px 0; border:none; padding:0;
+  }
+  input[type="range"]::-webkit-slider-runnable-track{ height:6px; border-radius:99px; background:var(--light-bg); }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--xp); border:3px solid var(--light-third); box-shadow:0 1px 4px rgba(0,0,0,.25);
+    margin-top:-7px; cursor:pointer; transition:transform .12s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:active{ transform:scale(1.15); }
+  input[type="range"]::-moz-range-track{ height:6px; border-radius:99px; background:var(--light-bg); }
+  input[type="range"]::-moz-range-thumb{
+    width:20px; height:20px; border-radius:50%; background:var(--xp); border:3px solid var(--light-third);
+    box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:pointer;
+  }
   .palette-preset-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:2px;}
   .palette-preset{width:44px; height:44px; border-radius:11px; border:2px solid #E1E4EC; position:relative; overflow:hidden; flex-shrink:0; transition:all .15s ease;}
   .palette-preset:hover{transform:translateY(-2px);}
@@ -254,7 +301,7 @@
   .inline-add input{flex:1;}
   .cat-chip-row{display:flex; flex-wrap:wrap; gap:10px 8px; margin-top:2px;}
   .cat-chip-wrap{position:relative; display:inline-flex;}
-  .cat-chip{display:flex; align-items:center; gap:7px; padding:10px 15px 10px 11px; border-radius:12px; border:1.5px solid #E1E4EC; background:var(--light-third); color:var(--text-dark); font-size:13px; font-weight:600; transition:all .16s cubic-bezier(.4,0,.2,1);}
+  .cat-chip{display:flex; align-items:center; gap:7px; padding:10px 15px 10px 11px; border-radius:10px; border:1.5px solid #E1E4EC; background:var(--light-third); color:var(--text-dark); font-size:13px; font-weight:600; transition:all .16s cubic-bezier(.4,0,.2,1);}
   .cat-chip-icon{width:16px;height:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
   .cat-chip:hover{background:var(--light-first); transform:translateY(-1px);}
   .cat-chip:active{transform:scale(.95);}
@@ -266,15 +313,22 @@
   .cat-chip-toggle-half.edit-half{border-right:1px solid #E1E4EC;}
   .cat-chip-toggle-half.edit-half:hover{background:var(--light-first); color:var(--xp);}
   .cat-chip-toggle-half.delete-half:hover{background:rgba(208,63,63,.1); color:var(--warning);}
-  .cat-filter-row{display:flex; flex-wrap:wrap; gap:8px;}
-  .cat-filter-chip{display:flex; align-items:center; gap:6px; padding:9px 14px; border-radius:11px; border:1px solid #E1E4EC; background:var(--light-third); color:var(--text-dark); font-size:12.5px; font-weight:600; transition:all .16s cubic-bezier(.4,0,.2,1);}
+  .tab-bar{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:0;}
+  .tab-row{display:flex; align-items:flex-end; gap:6px; position:relative; z-index:1;}
+  .tab-btn{padding:11px 20px; border:none; background:var(--light-basement); color:var(--gray); font-weight:700; font-size:13.5px; border-radius:12px 12px 0 0; opacity:.75;}
+  .tab-btn:hover{opacity:1;}
+  .tab-btn.active{background:var(--light-third); color:var(--text-dark); opacity:1;}
+  [data-theme="dark"] .tab-btn{background:var(--dark-basement); color:#9AA3B2;}
+  [data-theme="dark"] .tab-btn.active{background:var(--dark-first); color:var(--text-light);}
+  .cat-filter-row{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
+  .cat-filter-chip{display:flex; align-items:center; gap:6px; padding:9px 14px; border-radius:10px; border:1px solid #E1E4EC; background:var(--light-third); color:var(--text-dark); font-size:12.5px; font-weight:600; transition:all .16s cubic-bezier(.4,0,.2,1);}
   .cat-filter-chip:hover{background:var(--light-first); transform:translateY(-1px);}
   .cat-filter-chip:active{transform:scale(.95);}
   .cat-filter-chip.selected{background:rgba(0,143,236,.1); border-color:var(--corporate); color:var(--corporate);}
   .icon-picker{display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-top:10px; padding:10px; background:var(--light-first); border:1px solid #E1E4EC; border-radius:12px;}
   .edit-category-panel{margin-top:10px; padding:12px; background:var(--light-first); border:1px solid #E1E4EC; border-radius:12px;}
   .edit-category-panel .icon-picker{margin-top:0; padding:0; background:transparent; border:none;}
-  #editCategoryNameInput{width:100%; padding:9px 11px; border:1px solid #E1E4EC; border-radius:9px; font-size:13.5px; background:#fff; color:var(--text-dark);}
+  #editCategoryNameInput{width:100%; padding:9px 11px; border:1px solid #E1E4EC; border-radius:10px; font-size:13.5px; background:#fff; color:var(--text-dark);}
   .icon-picker button{aspect-ratio:1; border-radius:9px; border:1.5px solid transparent; background:var(--light-third); color:var(--gray); display:flex; align-items:center; justify-content:center;}
   .icon-picker button svg{width:17px;height:17px;}
   .icon-picker button:hover{background:var(--light-bg);}
@@ -299,11 +353,11 @@
   .sale-items{border:none; margin-bottom:14px;}
   .sale-item-card{border:1px solid #E4E7EE; border-radius:14px; padding:12px; margin-bottom:10px; background:#fff;}
   .sale-item-card:last-child{margin-bottom:0;}
-  .line-product-input{width:100%; padding:10px 12px; font-size:13.5px; border:1px solid #E4E7EE; border-radius:9px; background:var(--light-first); color:var(--text-dark); margin-bottom:10px;}
+  .line-product-input{width:100%; padding:10px 12px; font-size:13.5px; border:1px solid #E4E7EE; border-radius:10px; background:var(--light-first); color:var(--text-dark); margin-bottom:10px;}
   .line-suggestions{position:absolute; top:calc(100% - 6px); left:0; right:0; width:auto; z-index:30;}
   .sale-item-fields{display:grid; grid-template-columns:64px 90px 90px 1fr 34px; gap:8px; align-items:end;}
   .mini-label{display:block; font-size:9.5px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.3px; margin-bottom:4px;}
-  .sale-item-fields input{width:100%; padding:8px 9px; font-size:12.5px; border:1px solid #E4E7EE; border-radius:8px; background:var(--light-first); color:var(--text-dark);}
+  .sale-item-fields input{width:100%; padding:8px 9px; font-size:12.5px; border:1px solid #E4E7EE; border-radius:10px; background:var(--light-first); color:var(--text-dark);}
   .line-total-display{padding:8px 9px; font-size:13px; font-weight:700; font-family:var(--font-mono); color:var(--success); background:var(--light-first); border:1px solid #E4E7EE; border-radius:8px; text-align:right;}
   .add-line-btn{width:100%; padding:11px; border:1.5px dashed #CBD0DC; background:transparent; border-radius:12px; color:var(--xp); font-weight:700; font-size:13px;}
   .add-line-btn:hover{background:rgba(98,39,224,.06);}
@@ -364,9 +418,8 @@
     .stat-grid{grid-template-columns:repeat(2,1fr);}
     .field-row{grid-template-columns:1fr;}
     .app{padding:8px; gap:8px;}
-    .sidebar{width:64px; padding:16px 8px;}
-    .nav-item{justify-content:center; padding:10px;}
-    .nav-item .nav-label{display:none;}
+    .sidebar{width:60px; padding:16px 0;}
+    .nav-item{width:40px; height:40px;}
   }
 
   /* ---------- DARK MODE ---------- */
@@ -384,8 +437,7 @@
   [data-theme="dark"] .avatar-btn{ background: var(--dark-first); border-color: var(--dark-second); color: var(--text-light); }
   [data-theme="dark"] .icon-pill-btn:hover{ background: var(--dark-second); }
   [data-theme="dark"] .stat-card, [data-theme="dark"] .panel{ border-color: var(--dark-second); }
-  [data-theme="dark"] thead th{ border-bottom-color: var(--dark-second); }
-  [data-theme="dark"] tbody td{ border-bottom-color: var(--dark-second); }
+  [data-theme="dark"] tbody td{ border-top-color: var(--dark-second); }
   [data-theme="dark"] tbody tr:hover{ background: var(--dark-second); }
   [data-theme="dark"] .list-row{ border-bottom-color: var(--dark-second); }
   [data-theme="dark"] .field input, [data-theme="dark"] .field select{ background: var(--dark-first); border-color: var(--dark-second); color: var(--text-light); }
@@ -448,11 +500,22 @@
     background: rgba(255,255,255,.68);
     backdrop-filter: blur(var(--glass-blur, 18px)) saturate(160%);
     -webkit-backdrop-filter: blur(var(--glass-blur, 18px)) saturate(160%);
+    /* keep the rounded-corner clip stable while the scroll container repaints */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    isolation:isolate;
+    transform:translateZ(0);
+    will-change:transform;
   }
   html.has-bg-image .sidebar{
     background: rgba(20,24,32,.55);
     backdrop-filter: blur(calc(var(--glass-blur, 18px) + 4px)) saturate(160%);
     -webkit-backdrop-filter: blur(calc(var(--glass-blur, 18px) + 4px)) saturate(160%);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    isolation:isolate;
+    transform:translateZ(0);
+    will-change:transform;
   }
   html.has-bg-image[data-theme="dark"] .panel,
   html.has-bg-image[data-theme="dark"] .stat-card,
@@ -549,20 +612,27 @@
 
       <!-- PRODUCTS -->
       <div class="view" id="view-products">
-        <div class="page-head">
-          <div><div class="eyebrow">Inventory</div><h1>Products</h1><p>Frames, sunglasses, lenses & accessories.</p></div>
-          <button class="btn btn-primary" onclick="openProductModal()">＋ Add Product</button>
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <h3>All Products</h3>
-            <div class="filters">
-              <input type="text" id="productSearch" placeholder="Search name, SKU, note…" oninput="renderProducts()">
+        <div class="products-fixed-head">
+          <div class="page-head">
+            <div><div class="eyebrow">Inventory</div><h1>Products</h1><p>Frames, sunglasses, lenses & accessories.</p></div>
+            <div class="row-flex" style="gap:8px;">
+              <button class="btn btn-ghost" onclick="openLensModal()">＋ Add Lens</button>
+              <button class="btn btn-primary" onclick="openProductModal()">＋ Add Product</button>
             </div>
           </div>
           <input type="hidden" id="productCatFilter">
-          <div class="cat-filter-row" id="productCatFilterButtons" style="margin-bottom:16px;"></div>
-          <div id="productsTableBox"></div>
+          <input type="hidden" id="productSearch">
+          <div class="cat-filter-row" id="productCatFilterButtons" style="justify-content:flex-start; margin-bottom:12px; position:relative;"></div>
+          <div class="tab-row" id="productViewModeSeg">
+            <button type="button" data-mode="all" class="tab-btn active" onclick="setProductViewMode('all')">All Products</button>
+            <button type="button" data-mode="lenses" class="tab-btn" onclick="setProductViewMode('lenses')">Lens</button>
+            <button type="button" data-mode="progressive" class="tab-btn" onclick="setProductViewMode('progressive')">Progressive / Bifocal</button>
+          </div>
+        </div>
+        <div class="products-scroll-area">
+          <div class="panel" id="productsPanel">
+            <div id="productsTableBox"></div>
+          </div>
         </div>
       </div>
 
@@ -571,20 +641,22 @@
         <div class="page-head">
           <div><div class="eyebrow" id="saleFormEyebrow">Point of Sale</div><h1 id="saleFormTitle">New Sale</h1><p id="saleFormSubtitle">Record a sale to a walk-in customer or a company account.</p></div>
         </div>
-        <div class="panel" style="max-width:880px; padding:30px 32px;">
-          <div class="seg" style="max-width:460px;">
-            <button id="segCustomer" class="active" onclick="setSaleType('customer')"><span class="seg-icon"></span>Sale for Customer</button>
-            <button id="segCompany" onclick="setSaleType('company')"><span class="seg-icon"></span>Sale for Company</button>
-          </div>
-          <div class="field-row">
-            <div class="field" style="position:relative;">
-              <label id="partyLabel">Customer Name</label>
-              <input type="text" id="partyName" placeholder="e.g. Sok Dara" oninput="handlePartyInput(this.value)" onfocus="handlePartyInput(this.value)">
-              <div class="dropdown" id="partySuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
+        <div class="panel sale-form-panel" style="max-width:880px;">
+          <div class="sale-form-fixed">
+            <div class="seg" style="max-width:460px;">
+              <button id="segCustomer" class="active" onclick="setSaleType('customer')"><span class="seg-icon"></span>Sale for Customer</button>
+              <button id="segCompany" onclick="setSaleType('company')"><span class="seg-icon"></span>Sale for Company</button>
             </div>
-            <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
+            <div class="field-row">
+              <div class="field" style="position:relative;">
+                <label id="partyLabel">Customer Name</label>
+                <input type="text" id="partyName" placeholder="e.g. Sok Dara" oninput="handlePartyInput(this.value)" onfocus="handlePartyInput(this.value)">
+                <div class="dropdown" id="partySuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
+              </div>
+              <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
+            </div>
           </div>
-          <div class="field">
+          <div class="field sale-items-field">
             <div class="row-flex" style="justify-content:space-between; align-items:center; margin-bottom:6px;">
               <label style="margin:0;">Items</label>
               <div class="row-flex" style="gap:8px;">
@@ -598,23 +670,25 @@
             <div class="sale-items" id="saleItemsBox"></div>
             <button class="add-line-btn" onclick="addSaleLine()">＋ Add item</button>
           </div>
-          <div class="field">
-            <label>Payment Status</label>
-            <div class="seg" id="paymentStatusSeg" style="max-width:460px;">
-              <button data-status="paid" class="active" onclick="setPaymentStatus('paid')">Paid in Full</button>
-              <button data-status="partial" onclick="setPaymentStatus('partial')">Partially Paid</button>
-              <button data-status="unpaid" onclick="setPaymentStatus('unpaid')">Unpaid</button>
+          <div class="sale-form-fixed">
+            <div class="field">
+              <label>Payment Status</label>
+              <div class="seg" id="paymentStatusSeg" style="max-width:460px;">
+                <button data-status="paid" class="active" onclick="setPaymentStatus('paid')">Paid in Full</button>
+                <button data-status="partial" onclick="setPaymentStatus('partial')">Partially Paid</button>
+                <button data-status="unpaid" onclick="setPaymentStatus('unpaid')">Unpaid</button>
+              </div>
+              <div class="field" id="partialAmountRow" style="display:none; margin-top:10px; max-width:220px;">
+                <label>Amount Paid Now ($)</label>
+                <input type="number" id="partialAmountPaid" min="0" step="0.01" value="0">
+              </div>
             </div>
-            <div class="field" id="partialAmountRow" style="display:none; margin-top:10px; max-width:220px;">
-              <label>Amount Paid Now ($)</label>
-              <input type="number" id="partialAmountPaid" min="0" step="0.01" value="0">
+            <div class="field"><label>Note (optional)</label><input type="text" id="saleNote" placeholder="e.g. Customer will pick up next week"></div>
+            <div class="sale-total"><span>Total</span><span id="saleTotalDisplay">$0.00</span></div>
+            <div class="modal-actions">
+              <button class="btn btn-ghost" onclick="clearSaleForm()">Clear</button>
+              <button class="btn btn-primary" id="saveSaleBtn" onclick="submitSale()">Save Sale</button>
             </div>
-          </div>
-          <div class="field"><label>Note (optional)</label><input type="text" id="saleNote" placeholder="e.g. Customer will pick up next week"></div>
-          <div class="sale-total"><span>Total</span><span id="saleTotalDisplay">$0.00</span></div>
-          <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="clearSaleForm()">Clear</button>
-            <button class="btn btn-primary" id="saveSaleBtn" onclick="submitSale()">Save Sale</button>
           </div>
         </div>
       </div>
@@ -813,6 +887,39 @@
     <div class="field-row">
       <div class="field"><label>Cost Price ($)</label><input type="number" id="pCost" min="0" step="0.01" value="0"></div>
       <div class="field"><label>Selling Price ($)</label><input type="number" id="pPrice" min="0" step="0.01" value="0"></div>
+    </div>
+    <div id="lensFieldsWrap" style="display:none;">
+      <div class="field">
+        <label>SPH (Sphere): <span id="pSphValue" class="mono">+0.00</span></label>
+        <div class="row-flex" style="gap:10px; align-items:center;">
+          <div class="seg" id="sphSignSeg" style="max-width:90px; flex-shrink:0;">
+            <button type="button" data-sign="+" class="active" onclick="setSphSign('+')">+</button>
+            <button type="button" data-sign="-" onclick="setSphSign('-')">−</button>
+          </div>
+          <input type="range" id="pSph" min="0" max="50" step="0.25" value="0" oninput="updateSphDisplay()" style="flex:1;">
+        </div>
+      </div>
+      <div class="field">
+        <label>CYL (Cylinder): <span id="pCylValue" class="mono">+0.00</span></label>
+        <input type="range" id="pCyl" min="0" max="50" step="0.25" value="0" oninput="document.getElementById('pCylValue').textContent = '+' + Number(this.value).toFixed(2)">
+      </div>
+      <div class="field">
+        <label>Progressive / Bifocal Lens</label>
+        <div class="seg" id="progressiveSeg" style="max-width:160px;">
+          <button type="button" data-val="off" class="active" onclick="setProgressiveMode(false)">Off</button>
+          <button type="button" data-val="on" onclick="setProgressiveMode(true)">On</button>
+        </div>
+      </div>
+      <div id="progressiveExtraFields" style="display:none;">
+        <div class="field">
+          <label>Eye</label>
+          <div class="seg" id="lrSeg" style="max-width:160px;">
+            <button type="button" data-lr="L" class="active" onclick="setLR('L')">L</button>
+            <button type="button" data-lr="R" onclick="setLR('R')">R</button>
+          </div>
+        </div>
+        <div class="field"><label>ADD</label><input type="number" id="pAdd" min="0" step="0.25" value="0" placeholder="e.g. 2.00"></div>
+      </div>
     </div>
     <div class="field"><label>Note (optional)</label><input type="text" id="pNote" placeholder="e.g. Discontinued soon, ask supplier before reordering"></div>
     <div class="modal-actions">
@@ -1278,8 +1385,17 @@ try{ categoryIcons = JSON.parse(localStorage.getItem(DB.categoryIcons)) || {}; }
 /* ============ DATA BACKUP / TRANSFER (for reinstalls & updates) ============ */
 function exportData(){
   const payload = {
-    app:'optic-stock', version:2, exportedAt:new Date().toISOString(),
-    products, sales, categories, categoryIcons, companies, notes
+    app:'optic-stock', version:3, exportedAt:new Date().toISOString(),
+    products, sales, categories, categoryIcons, companies, notes,
+    settings: {
+      theme: localStorage.getItem('optic_theme') || 'light',
+      customTheme,
+      uiScale: localStorage.getItem(UI_SCALE_KEY) || '1',
+      glassBlur: localStorage.getItem(GLASS_BLUR_KEY) || '18',
+      bgImage: localStorage.getItem(BG_IMAGE_KEY) || null,
+      activePreset: localStorage.getItem(ACTIVE_PRESET_KEY) || null,
+      dashboardWidgets
+    }
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1321,6 +1437,18 @@ function handleImportFile(e){
         localStorage.setItem(DB.categoryIcons, JSON.stringify(categoryIcons));
         save(DB.companies, companies);
         save(DB.notes, notes);
+        if(data.settings){
+          const st = data.settings;
+          if(st.theme){ localStorage.setItem('optic_theme', st.theme); applyTheme(st.theme); }
+          if(st.customTheme){ customTheme = st.customTheme; saveCustomTheme(); }
+          if(st.uiScale){ localStorage.setItem(UI_SCALE_KEY, st.uiScale); applyUiScale(Number(st.uiScale)); }
+          if(st.glassBlur){ localStorage.setItem(GLASS_BLUR_KEY, st.glassBlur); applyGlassBlur(Number(st.glassBlur)); }
+          if(st.bgImage){ localStorage.setItem(BG_IMAGE_KEY, st.bgImage); } else { localStorage.removeItem(BG_IMAGE_KEY); }
+          applyBgImage();
+          if(st.activePreset) localStorage.setItem(ACTIVE_PRESET_KEY, st.activePreset); else localStorage.removeItem(ACTIVE_PRESET_KEY);
+          if(st.dashboardWidgets){ dashboardWidgets = st.dashboardWidgets; save(DB.dashboardWidgets, dashboardWidgets); }
+          applyCustomTheme();
+        }
         toast('Backup imported');
         refreshCategoryUI();
         renderProducts();
@@ -1346,6 +1474,12 @@ if(products.length === 0 && sales.length === 0 && !localStorage.getItem('optic_s
   localStorage.setItem('optic_seeded','1');
 }
 
+function fadeIn(el){
+  if(!el) return;
+  el.classList.remove('content-fade');
+  void el.offsetWidth;
+  el.classList.add('content-fade');
+}
 function toast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -1767,23 +1901,60 @@ function cancelNewCategory(){
 }
 
 /* --- Products page: category filter chips --- */
+const CAT_FILTER_VISIBLE_COUNT = 3;
 function renderCategoryFilterButtons(){
   const current = document.getElementById('productCatFilter').value || '';
   const box = document.getElementById('productCatFilterButtons');
   const allBtn = `<button type="button" class="cat-filter-chip ${current===''?'selected':''}" data-cat="">All</button>`;
-  const catBtns = categories.map(c=>`
+  const visible = categories.slice(0, CAT_FILTER_VISIBLE_COUNT);
+  const overflow = categories.slice(CAT_FILTER_VISIBLE_COUNT);
+  const chipHtml = c => `
     <button type="button" class="cat-filter-chip ${current===c?'selected':''}" data-cat="${escapeHtml(c)}">
       <span class="cat-chip-icon">${ICON[categoryIconKey(c)]}</span>${escapeHtml(c)}
     </button>
-  `).join('');
-  box.innerHTML = allBtn + catBtns;
+  `;
+  const visibleBtns = visible.map(chipHtml).join('');
+  const overflowSelected = overflow.includes(current);
+  let moreBtn = '';
+  if(overflow.length){
+    moreBtn = `
+      <div class="dropdown-wrap" id="catFilterMoreWrap" style="position:relative; display:inline-flex;">
+        <button type="button" class="cat-filter-chip ${overflowSelected?'selected':''}" id="catFilterMoreBtn">…</button>
+        <div class="dropdown" id="catFilterMoreDropdown" style="top:44px; right:auto; left:0;">
+          ${overflow.map(c=>`
+            <button type="button" class="cat-filter-more-item ${current===c?'selected':''}" data-cat="${escapeHtml(c)}" style="${current===c?'background:rgba(0,143,236,.1); color:var(--corporate);':''}">
+              <span class="cat-chip-icon">${ICON[categoryIconKey(c)]}</span>${escapeHtml(c)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  box.innerHTML = allBtn + visibleBtns + moreBtn;
 }
 document.getElementById('productCatFilterButtons').addEventListener('click', (e)=>{
+  const moreBtn = e.target.closest('#catFilterMoreBtn');
+  if(moreBtn){
+    document.getElementById('catFilterMoreDropdown').classList.toggle('open');
+    return;
+  }
+  const item = e.target.closest('.cat-filter-more-item');
+  if(item){
+    document.getElementById('productCatFilter').value = item.dataset.cat || '';
+    renderCategoryFilterButtons();
+    renderProducts();
+    return;
+  }
   const btn = e.target.closest('.cat-filter-chip');
   if(!btn) return;
   document.getElementById('productCatFilter').value = btn.dataset.cat || '';
   renderCategoryFilterButtons();
   renderProducts();
+});
+document.addEventListener('click', (e)=>{
+  const wrap = document.getElementById('catFilterMoreWrap');
+  if(!wrap) return;
+  if(!wrap.contains(e.target)) document.getElementById('catFilterMoreDropdown')?.classList.remove('open');
 });
 
 refreshCategoryUI();
@@ -1796,6 +1967,39 @@ function ringHtml(p){
   return `<div class="chip" style="background:${c.tint}; color:${c.solid}; border-radius:50%;">${p.qty}</div>`;
 }
 
+let sphSign = '+';
+function setSphSign(sign){
+  sphSign = sign;
+  document.querySelectorAll('#sphSignSeg button').forEach(b=>b.classList.toggle('active', b.dataset.sign===sign));
+  updateSphDisplay();
+}
+function updateSphDisplay(){
+  const mag = Number(document.getElementById('pSph').value) || 0;
+  document.getElementById('pSphValue').textContent = (sphSign==='-' ? '-' : '+') + mag.toFixed(2);
+}
+function setProgressiveMode(isOn){
+  document.querySelectorAll('#progressiveSeg button').forEach(b=>b.classList.toggle('active', (b.dataset.val==='on')===isOn));
+  document.getElementById('progressiveExtraFields').style.display = isOn ? 'block' : 'none';
+}
+let currentLR = 'L';
+function setLR(val){
+  currentLR = val;
+  document.querySelectorAll('#lrSeg button').forEach(b=>b.classList.toggle('active', b.dataset.lr===val));
+}
+function showLensFields(show){
+  document.getElementById('lensFieldsWrap').style.display = show ? 'block' : 'none';
+}
+function resetLensFields(){
+  setSphSign('+');
+  document.getElementById('pSph').value = 0;
+  updateSphDisplay();
+  document.getElementById('pCyl').value = 0;
+  document.getElementById('pCylValue').textContent = '+0.00';
+  setProgressiveMode(false);
+  setLR('L');
+  document.getElementById('pAdd').value = 0;
+  showLensFields(false);
+}
 function openProductModal(id){
   document.getElementById('productModalOverlay').classList.add('active');
   document.getElementById('newCategoryRow').style.display = 'none';
@@ -1814,6 +2018,22 @@ function openProductModal(id){
     document.getElementById('pCost').value = p.cost;
     document.getElementById('pPrice').value = p.price;
     document.getElementById('pNote').value = p.note || '';
+    const hasSph = p.sph !== undefined && p.sph !== null;
+    const hasLegacyRx = !hasSph && p.prescription !== undefined && p.prescription !== null;
+    if(hasSph || hasLegacyRx){
+      const rawSph = hasSph ? p.sph : p.prescription;
+      setSphSign(rawSph < 0 ? '-' : '+');
+      document.getElementById('pSph').value = Math.abs(rawSph);
+      updateSphDisplay();
+      document.getElementById('pCyl').value = p.cyl || 0;
+      document.getElementById('pCylValue').textContent = '+' + Number(p.cyl||0).toFixed(2);
+      setProgressiveMode(!!p.progressive);
+      setLR(p.lr || 'L');
+      document.getElementById('pAdd').value = p.add || 0;
+      showLensFields(true);
+    } else {
+      resetLensFields();
+    }
   } else {
     document.getElementById('productModalTitle').textContent = 'Add Product';
     ['productId','pName','pSku','pNote'].forEach(id=>document.getElementById(id).value='');
@@ -1821,8 +2041,18 @@ function openProductModal(id){
     document.getElementById('pQty').value = 0;
     document.getElementById('pCost').value = 0;
     document.getElementById('pPrice').value = 0;
+    resetLensFields();
   }
   renderCategoryButtons();
+}
+function openLensModal(id){
+  openProductModal(id);
+  document.getElementById('productModalTitle').textContent = id ? 'Edit Lens' : 'Add Lens';
+  showLensFields(true);
+  if(!id && categories.includes('Lens')){
+    document.getElementById('pCategory').value = 'Lens';
+    renderCategoryButtons();
+  }
 }
 function closeProductModal(){ document.getElementById('productModalOverlay').classList.remove('active'); }
 
@@ -1840,6 +2070,17 @@ function saveProduct(){
     cost: Number(document.getElementById('pCost').value) || 0,
     price: Number(document.getElementById('pPrice').value) || 0,
   };
+  if(document.getElementById('lensFieldsWrap').style.display !== 'none'){
+    const mag = Number(document.getElementById('pSph').value) || 0;
+    data.sph = sphSign==='-' ? -mag : mag;
+    data.cyl = Number(document.getElementById('pCyl').value) || 0;
+    const isProgressive = document.querySelector('#progressiveSeg button[data-val="on"]').classList.contains('active');
+    data.progressive = isProgressive;
+    if(isProgressive){
+      data.lr = currentLR;
+      data.add = Number(document.getElementById('pAdd').value) || 0;
+    }
+  }
   if(id){ const idx = products.findIndex(p=>p.id===id); products[idx] = {...products[idx], ...data}; toast('Product updated'); }
   else { products.push({id:uid(), ...data}); toast('Product added'); }
   save(DB.products, products);
@@ -1857,35 +2098,80 @@ function deleteProduct(id){
   }, {title:'Delete product?', confirmLabel:'Delete'});
 }
 
+let productViewMode = 'all';
+function isLensProduct(p){ return p.sph !== undefined && p.sph !== null; }
+function setProductViewMode(mode){
+  productViewMode = mode;
+  document.querySelectorAll('#productViewModeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  renderProducts();
+}
+function sphDisplay(p){ return isLensProduct(p) ? (p.sph>=0?'+':'') + Number(p.sph).toFixed(2) : '—'; }
+function cylDisplay(p){ return isLensProduct(p) ? '+' + Number(p.cyl||0).toFixed(2) : '—'; }
 function renderProducts(){
   const search = (document.getElementById('productSearch')?.value || '').toLowerCase();
   const cat = document.getElementById('productCatFilter')?.value || '';
   let list = products.filter(p=>{
     const matchSearch = !search || [p.name,p.sku,p.note].join(' ').toLowerCase().includes(search);
     const matchCat = !cat || p.category === cat;
-    return matchSearch && matchCat;
+    let matchMode = true;
+    if(productViewMode==='all') matchMode = !isLensProduct(p);
+    else if(productViewMode==='lenses') matchMode = isLensProduct(p) && !p.progressive;
+    else if(productViewMode==='progressive') matchMode = isLensProduct(p) && !!p.progressive;
+    return matchSearch && matchCat && matchMode;
   });
   const box = document.getElementById('productsTableBox');
+  setTimeout(()=>fadeIn(box), 0);
   if(products.length===0){
     box.innerHTML = `<div class="empty"><div class="chip-big">${ICON.box}</div><h4>No products yet</h4><p>Add your first frame, lens or pair of sunglasses to start tracking stock.</p><button class="btn btn-primary" onclick="openProductModal()">＋ Add Product</button></div>`;
     return;
   }
-  if(list.length===0){ box.innerHTML = `<div class="empty"><h4>No matches</h4><p>Try a different search or category.</p></div>`; return; }
-  box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th class="right">Cost</th><th class="right">Price</th><th class="center">Actions</th></tr></thead><tbody>
-  ${list.map(p=>{
-    return `<tr>
+  if(list.length===0){
+    const emptyMsg = productViewMode==='progressive' ? 'No progressive or bifocal lenses yet.' : productViewMode==='lenses' ? 'No lenses match.' : 'No matches.';
+    box.innerHTML = `<div class="empty"><h4>No matches</h4><p>${emptyMsg} Try a different search, category, or view.</p></div>`;
+    return;
+  }
+  const rowStart = p => `<tr>
       <td>${ringHtml(p)}</td>
       <td><strong>${p.name}</strong>${p.note?`<div class="muted" style="font-size:12px;">${escapeHtml(p.note.slice(0,50))}${p.note.length>50?'…':''}</div>`:''}</td>
       <td>${chipHtml(categoryKey(p.category), categoryIcon(p.category))} <span style="vertical-align:middle; margin-left:4px;">${p.category}</span></td>
-      <td class="mono muted">${p.sku||'—'}</td>
-      <td class="right mono">${fmt(p.cost)}</td>
-      <td class="right mono">${fmt(p.price)}</td>
-      <td class="center"><div class="row-flex" style="justify-content:center;">
+      <td class="mono muted">${p.sku||'—'}</td>`;
+  const rowActions = p => `<td class="center"><div class="row-flex" style="justify-content:center;">
         <button class="icon-btn icon-btn-lg" title="Edit" onclick="openProductModal('${p.id}')">${ICON.pencil}</button>
         <button class="icon-btn icon-btn-lg icon-btn-danger" title="Delete" onclick="deleteProduct('${p.id}')">${ICON.trash}</button>
       </div></td>
     </tr>`;
-  }).join('')}
+
+  if(productViewMode==='progressive'){
+    box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th><th class="center">Side</th><th class="right">Cost</th><th class="right">Price</th><th class="center">Actions</th></tr></thead><tbody>
+    ${list.map(p=>`${rowStart(p)}
+      <td class="mono">${sphDisplay(p)}</td>
+      <td class="mono">${cylDisplay(p)}</td>
+      <td class="mono">${Number(p.add||0).toFixed(2)}</td>
+      <td class="center">${pillHtml(p.lr==='R'?'violet':'corporate', p.lr||'L')}</td>
+      <td class="right mono">${fmt(p.cost)}</td>
+      <td class="right mono">${fmt(p.price)}</td>
+      ${rowActions(p)}`).join('')}
+    </tbody></table>`;
+    return;
+  }
+
+  if(productViewMode==='lenses'){
+    box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th class="right">Cost</th><th class="right">Price</th><th class="center">Actions</th></tr></thead><tbody>
+    ${list.map(p=>`${rowStart(p)}
+      <td class="mono">${sphDisplay(p)}</td>
+      <td class="mono">${cylDisplay(p)}</td>
+      <td class="right mono">${fmt(p.cost)}</td>
+      <td class="right mono">${fmt(p.price)}</td>
+      ${rowActions(p)}`).join('')}
+    </tbody></table>`;
+    return;
+  }
+
+  box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th class="right">Cost</th><th class="right">Price</th><th class="center">Actions</th></tr></thead><tbody>
+  ${list.map(p=>`${rowStart(p)}
+    <td class="right mono">${fmt(p.cost)}</td>
+    <td class="right mono">${fmt(p.price)}</td>
+    ${rowActions(p)}`).join('')}
   </tbody></table>`;
 }
 
@@ -1982,6 +2268,15 @@ function lineTotalAfterDiscount(line){
   let after = saleDiscountType==='percent' ? subtotal - (subtotal * Math.min(discount,100) / 100) : subtotal - discount;
   return Math.max(0, after);
 }
+function productSearchLabel(p){
+  if(isLensProduct(p)){
+    const parts = [p.sku||'—', p.category, `SPH ${sphDisplay(p)}`, `CYL ${cylDisplay(p)}`];
+    if(p.progressive) parts.push(`ADD ${Number(p.add||0).toFixed(2)}`);
+    parts.push(`${p.qty} in stock`, fmt(p.price));
+    return parts.join(' — ');
+  }
+  return `${p.sku ? p.sku+' — ' : ''}${p.name}`;
+}
 function handleLineProductSearch(lineId, value){
   const line = saleLines.find(l=>l.lineId===lineId);
   if(!line) return;
@@ -1997,7 +2292,7 @@ function handleLineProductSearch(lineId, value){
   });
   matches = matches.slice(0,6);
   if(matches.length===0){ box.classList.remove('open'); return; }
-  box.innerHTML = matches.map(p=>`<button type="button" onclick="selectLineProduct('${lineId}','${p.id}')"><strong class="mono">${escapeHtml(p.sku||'—')}</strong> — ${escapeHtml(p.name)} <span style="color:var(--gray); font-weight:500;">(${p.qty} in stock · ${fmt(p.price)})</span></button>`).join('');
+  box.innerHTML = matches.map(p=>`<button type="button" onclick="selectLineProduct('${lineId}','${p.id}')">${escapeHtml(productSearchLabel(p))}${!isLensProduct(p)?` <span style="color:var(--gray); font-weight:500;">(${p.qty} in stock · ${fmt(p.price)})</span>`:''}</button>`).join('');
   box.classList.add('open');
 }
 function selectLineProduct(lineId, productId){
@@ -2022,7 +2317,7 @@ function renderSaleLines(){
     const discountSuffix = saleDiscountType==='percent' ? '%' : '$';
     box.innerHTML = saleLines.map(line=>{
       const p = products.find(x=>x.id===line.productId);
-      const displayValue = line.searchText || (p ? `${p.sku ? p.sku+' — ' : ''}${p.name}` : '');
+      const displayValue = line.searchText || (p ? productSearchLabel(p) : '');
       return `
       <div class="sale-item-card">
         <div style="position:relative;">
@@ -2176,6 +2471,7 @@ function renderHistory(){
     return matchType && matchMonth && matchParty && matchPayment;
   });
   const box = document.getElementById('historyTableBox');
+  setTimeout(()=>fadeIn(box), 0);
   if(sales.length===0){
     box.innerHTML = `<div class="empty"><div class="chip-big">${ICON.clock}</div><h4>No sales recorded yet</h4><p>Sales you record will show up here.</p><button class="btn btn-primary" onclick="goto('sale-new')">＋ New Sale</button></div>`;
     return;
@@ -2241,6 +2537,7 @@ function submitPayment(){
 /* ============ NOTES ============ */
 function renderNotes(){
   const box = document.getElementById('notesGridBox');
+  setTimeout(()=>fadeIn(box), 0);
   let list = [...notes].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
   if(notesSearchFilter){
     list = list.filter(n=>(n.title+' '+n.content).toLowerCase().includes(notesSearchFilter));
@@ -2365,6 +2662,7 @@ function companyStats(name){
 }
 function renderCompanies(){
   const box = document.getElementById('companiesGridBox');
+  setTimeout(()=>fadeIn(box), 0);
   if(companies.length===0){
     box.innerHTML = `<div class="empty"><div class="chip-big">${ICON.briefcase}</div><h4>No company profiles yet</h4><p>Add a company here, or one will be created automatically the first time you record a company sale.</p><button class="btn btn-primary" onclick="openCompanyModal()">＋ New Company</button></div>`;
     return;
@@ -2432,6 +2730,7 @@ function setCompanyTab(tab){
 function renderCompanyTabContent(){
   const c = companies.find(x=>x.id===currentCompanyModalId);
   const box = document.getElementById('companyTabBox');
+  setTimeout(()=>fadeIn(box), 0);
   if(!c){ box.innerHTML = ''; return; }
   const stats = companyStats(c.name);
   let list = companyActiveTab==='all' ? stats.sales : stats.sales.filter(s=>(s.paymentStatus||'paid')===companyActiveTab);
@@ -2584,6 +2883,7 @@ function renderNotesPreviewWidget(){
 }
 function renderDashboardWidgets(){
   const container = document.getElementById('dashboardWidgetsContainer');
+  setTimeout(()=>fadeIn(container), 0);
   if(dashboardWidgets.length===0){
     container.innerHTML = `<div class="empty"><h4>No widgets added</h4><p>Tap "Add Widget" above to build your dashboard.</p></div>`;
     return;
@@ -2674,6 +2974,7 @@ function renderReports(){
   const bars = document.getElementById('reportBars');
   const table = document.getElementById('reportTableBox');
   const title = document.getElementById('reportTitle');
+  setTimeout(()=>{ fadeIn(bars); fadeIn(table); }, 0);
   let buckets = [];
 
   if(reportMode==='daily'){
