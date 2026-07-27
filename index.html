@@ -1079,7 +1079,7 @@
           <input type="range" id="glassBlurSlider" min="0" max="40" step="1" value="18" oninput="setGlassBlur(this.value)">
           <div class="slider-ticks" id="glassBlurTicks"></div>
         </div>
-        <input type="number" id="glassBlurNumberInput" class="slider-number-input" min="0" max="40" step="1" value="18" oninput="setGlassBlur(this.value)">
+        <input type="number" id="glassBlurNumberInput" class="slider-number-input" min="0" max="40" step="1" value="18" oninput="onBlurNumberInput(this.value)">
       </div>
     </div>
 
@@ -1382,6 +1382,18 @@ function applyGlassBlur(px){
 function setGlassBlur(px){
   localStorage.setItem(GLASS_BLUR_KEY, px);
   applyGlassBlur(px);
+}
+function onBlurNumberInput(val){
+  let px = Number(val);
+  if(isNaN(px)) px = 0;
+  px = Math.max(0, Math.min(40, px));
+  localStorage.setItem(GLASS_BLUR_KEY, px);
+  document.documentElement.style.setProperty('--glass-blur', px + 'px');
+  const label = document.getElementById('glassBlurValue');
+  if(label) label.textContent = px + 'px';
+  const slider = document.getElementById('glassBlurSlider');
+  if(slider) slider.value = px;
+  // not touching glassBlurNumberInput itself while the user is typing in it
 }
 function triggerBgImageUpload(){ document.getElementById('bgImageInput').click(); }
 function handleBgImageUpload(e){
@@ -2127,18 +2139,25 @@ function updateSphDisplay(){
   document.getElementById('pSphNumberInput').value = mag;
 }
 function onSphNumberInput(val){
-  let mag = Math.max(0, Math.min(50, Number(val) || 0));
+  let mag = Number(val);
+  if(isNaN(mag)) mag = 0;
+  mag = Math.max(0, Math.min(50, mag));
   document.getElementById('pSph').value = mag;
-  updateSphDisplay();
+  document.getElementById('pSphValue').textContent = (sphSign==='-' ? '-' : '+') + mag.toFixed(2);
+  // intentionally NOT writing back into pSphNumberInput here — doing so on every
+  // keystroke was stripping the decimal point before the user could finish typing it
 }
 function onCylSliderInput(val){
   document.getElementById('pCylValue').textContent = '+' + Number(val).toFixed(2);
   document.getElementById('pCylNumberInput').value = Number(val);
 }
 function onCylNumberInput(val){
-  let mag = Math.max(0, Math.min(50, Number(val) || 0));
+  let mag = Number(val);
+  if(isNaN(mag)) mag = 0;
+  mag = Math.max(0, Math.min(50, mag));
   document.getElementById('pCyl').value = mag;
   document.getElementById('pCylValue').textContent = '+' + mag.toFixed(2);
+  // same here — leave pCylNumberInput untouched while the user is actively typing
 }
 function setProgressiveMode(mode){
   document.querySelectorAll('#progressiveSeg button').forEach(b=>b.classList.toggle('active', b.dataset.val===mode));
