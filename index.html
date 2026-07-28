@@ -745,6 +745,7 @@
             <div class="field"><label>Note (optional)</label><input type="text" id="saleNote" placeholder="e.g. Customer will pick up next week"></div>
             <div class="sale-total"><span>Total</span><span id="saleTotalDisplay">$0.00</span></div>
             <div class="modal-actions">
+              <button class="btn btn-ghost" id="cancelSaleEditBtn" onclick="cancelEditSale()" style="display:none;">Cancel</button>
               <button class="btn btn-ghost" onclick="clearSaleForm()">Clear</button>
               <button class="btn btn-primary" id="saveSaleBtn" onclick="submitSale()">Save Sale</button>
             </div>
@@ -877,6 +878,7 @@
       <div class="field"><label>Notes (optional)</label><input type="text" id="companyNotes" placeholder="e.g. Pays on the 1st of each month"></div>
       <div class="field"><label>Card Color</label><div class="note-color-row" id="companyColorRow"></div></div>
       <div class="modal-actions">
+        <button class="btn btn-ghost" id="companyDeleteBtn" onclick="deleteCompanyFromModal()" style="margin-right:auto; color:var(--warning); border-color:#F0C6C6;">Delete</button>
         <button class="btn btn-ghost" onclick="cancelCompanyEdit()">Cancel</button>
         <button class="btn btn-primary" onclick="saveCompanyProfile()">Save</button>
       </div>
@@ -968,17 +970,17 @@
             <input type="range" id="pSph" min="0" max="50" step="0.25" value="0" oninput="updateSphDisplay()">
             <div class="slider-ticks" id="pSphTicks"></div>
           </div>
-          <input type="number" id="pSphNumberInput" class="slider-number-input" min="0" max="50" step="0.25" value="0" oninput="onSphNumberInput(this.value)">
+          <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" id="pSphNumberInput" class="slider-number-input" value="0" oninput="onSphNumberInput(this)">
         </div>
       </div>
       <div class="field">
-        <label>CYL (Cylinder): <span id="pCylValue" class="mono">+0.00</span></label>
+        <label>CYL (Cylinder): <span id="pCylValue" class="mono">-0.00</span></label>
         <div class="row-flex" style="gap:10px; align-items:center;">
           <div class="slider-wrap" style="flex:1;">
             <input type="range" id="pCyl" min="0" max="50" step="0.25" value="0" oninput="onCylSliderInput(this.value)">
             <div class="slider-ticks" id="pCylTicks"></div>
           </div>
-          <input type="number" id="pCylNumberInput" class="slider-number-input" min="0" max="50" step="0.25" value="0" oninput="onCylNumberInput(this.value)">
+          <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" id="pCylNumberInput" class="slider-number-input" value="0" oninput="onCylNumberInput(this)">
         </div>
       </div>
       <div class="field">
@@ -1079,7 +1081,7 @@
           <input type="range" id="glassBlurSlider" min="0" max="40" step="1" value="18" oninput="setGlassBlur(this.value)">
           <div class="slider-ticks" id="glassBlurTicks"></div>
         </div>
-        <input type="number" id="glassBlurNumberInput" class="slider-number-input" min="0" max="40" step="1" value="18" oninput="onBlurNumberInput(this.value)">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" id="glassBlurNumberInput" class="slider-number-input" value="18" oninput="onBlurNumberInput(this)">
       </div>
     </div>
 
@@ -1383,8 +1385,10 @@ function setGlassBlur(px){
   localStorage.setItem(GLASS_BLUR_KEY, px);
   applyGlassBlur(px);
 }
-function onBlurNumberInput(val){
-  let px = Number(val);
+function onBlurNumberInput(el){
+  const cleaned = sanitizeIntegerValue(el.value);
+  applySanitizedValue(el, cleaned);
+  let px = Number(cleaned);
   if(isNaN(px)) px = 0;
   px = Math.max(0, Math.min(40, px));
   localStorage.setItem(GLASS_BLUR_KEY, px);
@@ -1393,7 +1397,7 @@ function onBlurNumberInput(val){
   if(label) label.textContent = px + 'px';
   const slider = document.getElementById('glassBlurSlider');
   if(slider) slider.value = px;
-  // not touching glassBlurNumberInput itself while the user is typing in it
+  // not touching el.value beyond sanitizing while the user is typing in it
 }
 function triggerBgImageUpload(){ document.getElementById('bgImageInput').click(); }
 function handleBgImageUpload(e){
@@ -2133,31 +2137,54 @@ function setSphSign(sign){
   document.querySelectorAll('#sphSignSeg button').forEach(b=>b.classList.toggle('active', b.dataset.sign===sign));
   updateSphDisplay();
 }
+function sanitizeDecimalValue(raw){
+  let cleaned = (raw || '').replace(/[^0-9.]/g, '');
+  const firstDot = cleaned.indexOf('.');
+  if(firstDot !== -1){
+    cleaned = cleaned.slice(0, firstDot+1) + cleaned.slice(firstDot+1).replace(/\./g, '');
+  }
+  return cleaned;
+}
+function sanitizeIntegerValue(raw){
+  return (raw || '').replace(/[^0-9]/g, '');
+}
+function applySanitizedValue(el, cleaned){
+  if(cleaned === el.value) return;
+  const removedBeforeCursor = el.value.length - cleaned.length;
+  const pos = Math.max(0, (el.selectionStart||cleaned.length) - removedBeforeCursor);
+  el.value = cleaned;
+  if(document.activeElement === el) el.setSelectionRange(pos, pos);
+}
 function updateSphDisplay(){
   const mag = Number(document.getElementById('pSph').value) || 0;
   document.getElementById('pSphValue').textContent = (sphSign==='-' ? '-' : '+') + mag.toFixed(2);
   document.getElementById('pSphNumberInput').value = mag;
 }
-function onSphNumberInput(val){
-  let mag = Number(val);
+function onSphNumberInput(el){
+  const cleaned = sanitizeDecimalValue(el.value);
+  applySanitizedValue(el, cleaned);
+  let mag = Number(cleaned);
   if(isNaN(mag)) mag = 0;
   mag = Math.max(0, Math.min(50, mag));
   document.getElementById('pSph').value = mag;
   document.getElementById('pSphValue').textContent = (sphSign==='-' ? '-' : '+') + mag.toFixed(2);
-  // intentionally NOT writing back into pSphNumberInput here — doing so on every
-  // keystroke was stripping the decimal point before the user could finish typing it
+  // intentionally NOT overwriting el.value beyond sanitizing here — doing more
+  // (like re-formatting to a fixed number) on every keystroke was stripping the
+  // decimal point before the user could finish typing it, especially on iPad
 }
 function onCylSliderInput(val){
-  document.getElementById('pCylValue').textContent = '+' + Number(val).toFixed(2);
+  document.getElementById('pCylValue').textContent = '-' + Number(val).toFixed(2);
   document.getElementById('pCylNumberInput').value = Number(val);
 }
-function onCylNumberInput(val){
-  let mag = Number(val);
+function onCylNumberInput(el){
+  const cleaned = sanitizeDecimalValue(el.value);
+  applySanitizedValue(el, cleaned);
+  let mag = Number(cleaned);
   if(isNaN(mag)) mag = 0;
   mag = Math.max(0, Math.min(50, mag));
   document.getElementById('pCyl').value = mag;
-  document.getElementById('pCylValue').textContent = '+' + mag.toFixed(2);
-  // same here — leave pCylNumberInput untouched while the user is actively typing
+  document.getElementById('pCylValue').textContent = '-' + mag.toFixed(2);
+  // same here — leave el.value alone beyond sanitizing while the user is actively typing
 }
 function setProgressiveMode(mode){
   document.querySelectorAll('#progressiveSeg button').forEach(b=>b.classList.toggle('active', b.dataset.val===mode));
@@ -2189,7 +2216,7 @@ function resetLensFields(){
   document.getElementById('pSph').value = 0;
   updateSphDisplay();
   document.getElementById('pCyl').value = 0;
-  document.getElementById('pCylValue').textContent = '+0.00';
+  document.getElementById('pCylValue').textContent = '-0.00';
   document.getElementById('pCylNumberInput').value = 0;
   setProgressiveMode('off');
   setLR('L');
@@ -2221,9 +2248,9 @@ function openProductModal(id){
       setSphSign(rawSph < 0 ? '-' : '+');
       document.getElementById('pSph').value = Math.abs(rawSph);
       updateSphDisplay();
-      document.getElementById('pCyl').value = p.cyl || 0;
-      document.getElementById('pCylValue').textContent = '+' + Number(p.cyl||0).toFixed(2);
-      document.getElementById('pCylNumberInput').value = Number(p.cyl||0);
+      document.getElementById('pCyl').value = Math.abs(p.cyl || 0);
+      document.getElementById('pCylValue').textContent = '-' + Math.abs(Number(p.cyl||0)).toFixed(2);
+      document.getElementById('pCylNumberInput').value = Math.abs(Number(p.cyl||0));
       setProgressiveMode(lensFinishOf(p));
       setLR(p.lr || 'L');
       document.getElementById('pAdd').value = p.add || 0;
@@ -2270,7 +2297,7 @@ function saveProduct(){
   if(document.getElementById('lensFieldsWrap').classList.contains('open')){
     const mag = Number(document.getElementById('pSph').value) || 0;
     data.sph = sphSign==='-' ? -mag : mag;
-    data.cyl = Number(document.getElementById('pCyl').value) || 0;
+    data.cyl = -Math.abs(Number(document.getElementById('pCyl').value) || 0);
     const lensMode = document.querySelector('#progressiveSeg button.active').dataset.val;
     data.lensType = lensMode;
     data.progressive = lensMode === 'progressive'; // kept for backward compatibility
@@ -2319,7 +2346,7 @@ function setProductViewMode(mode){
   renderProducts();
 }
 function sphDisplay(p){ return isLensProduct(p) ? (p.sph>=0?'+':'') + Number(p.sph).toFixed(2) : '—'; }
-function cylDisplay(p){ return isLensProduct(p) ? '+' + Number(p.cyl||0).toFixed(2) : '—'; }
+function cylDisplay(p){ return isLensProduct(p) ? '-' + Math.abs(Number(p.cyl||0)).toFixed(2) : '—'; }
 function renderProducts(){
   const search = (document.getElementById('productSearch')?.value || '').toLowerCase();
   const cat = document.getElementById('productCatFilter')?.value || '';
@@ -2580,6 +2607,14 @@ function updateSaleFormModeUI(isEditing){
   document.getElementById('saleFormTitle').textContent = isEditing ? 'Edit Sale' : 'New Sale';
   document.getElementById('saleFormSubtitle').textContent = isEditing ? 'Update the details of this sale, then save your changes.' : 'Record a sale to a walk-in customer or a company account.';
   document.getElementById('saveSaleBtn').textContent = isEditing ? 'Update Sale' : 'Save Sale';
+  document.getElementById('cancelSaleEditBtn').style.display = isEditing ? 'inline-flex' : 'none';
+}
+function cancelEditSale(){
+  editingSaleId = null;
+  resetSaleForm();
+  updateSaleFormModeUI(false);
+  goto('sales-history');
+  toast('Edit cancelled — no changes were saved');
 }
 function clearSaleForm(){
   editingSaleId = null;
@@ -2950,6 +2985,7 @@ function showCompanyEditMode(isNew){
   document.getElementById('companyViewMode').style.display = 'none';
   document.getElementById('companyEditMode').style.display = 'block';
   document.getElementById('companyEditTitle').textContent = isNew ? 'New Company' : 'Edit Company';
+  document.getElementById('companyDeleteBtn').style.display = isNew ? 'none' : 'inline-flex';
   if(isNew){
     document.getElementById('companyId').value = '';
     document.getElementById('companyName').value = '';
@@ -3001,6 +3037,31 @@ function renderCompanyTabContent(){
   `).join('');
 }
 function closeCompanyModal(){ document.getElementById('companyModalOverlay').classList.remove('active'); }
+function deleteCompanyFromModal(){
+  const id = document.getElementById('companyId').value;
+  if(!id) return;
+  const c = companies.find(x=>x.id===id);
+  showConfirm(`Delete "${c ? c.name : 'this company'}"? Their sale history will be kept, but the profile, notes, and color will be removed.`, ()=>{
+    closeCompanyModal();
+    deleteCompany(id);
+  }, {title:'Delete company?', confirmLabel:'Delete'});
+}
+function deleteCompany(id){
+  const idx = companies.findIndex(c=>c.id===id);
+  if(idx===-1) return;
+  const removed = companies[idx];
+  companies = companies.filter(c=>c.id!==id);
+  save(DB.companies, companies);
+  if(currentView==='companies') renderCompanies();
+  if(currentView==='dashboard') renderDashboard();
+  showUndoToast('Company deleted', ()=>{
+    companies.splice(Math.min(idx, companies.length), 0, removed);
+    save(DB.companies, companies);
+    if(currentView==='companies') renderCompanies();
+    if(currentView==='dashboard') renderDashboard();
+    toast('Company restored');
+  });
+}
 function saveCompanyProfile(){
   const name = document.getElementById('companyName').value.trim();
   if(!name){ toast('Enter a company name'); return; }
