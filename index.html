@@ -431,7 +431,7 @@
 
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark-bg); color:#fff; padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:600; opacity:0; transition:all .25s ease; z-index:100; pointer-events:none; display:flex; align-items:center; gap:14px; max-width:90vw;}
   .toast.show{pointer-events:auto;}
-  .toast-undo-btn{background:transparent; border:none; color:#9b6bf5; font-weight:700; font-size:13px; padding:0; text-decoration:underline; flex-shrink:0;}
+  .toast-undo-btn{background:transparent; border:none; color:var(--xp); font-weight:700; font-size:13px; padding:0; text-decoration:underline; flex-shrink:0;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   /* ---------- FULLSCREEN OVERLAYS: LOCK + GUIDELINES ---------- */
@@ -498,7 +498,7 @@
   [data-theme="dark"] .sale-item-fields input,
   [data-theme="dark"] .line-total-display{ background: var(--dark-second); border-color: var(--dark-third); color: var(--text-light); }
   [data-theme="dark"] .sale-items{ border-color: var(--dark-second); }
-  [data-theme="dark"] .add-line-btn{ border-color: var(--dark-third); color:#C7B8F5; }
+  [data-theme="dark"] .add-line-btn{ border-color: var(--dark-third); color:var(--xp); }
   [data-theme="dark"] .modal{ background: var(--dark-bg); }
   [data-theme="dark"] .modal-close-btn{ background: var(--dark-first); border-color: var(--dark-second); color: #9AA3B2; }
   [data-theme="dark"] .modal-close-btn:hover{ background: var(--dark-second); color: #fff; }
@@ -1056,12 +1056,14 @@
     <div class="field">
       <label>Text & UI Size</label>
       <div class="seg" id="uiScaleSeg" style="gap:4px;">
-        <button data-scale="0.9" onclick="setUiScale(0.9)">XS</button>
-        <button data-scale="0.95" onclick="setUiScale(0.95)">S</button>
         <button data-scale="1" class="active" onclick="setUiScale(1)">M</button>
-        <button data-scale="1.08" onclick="setUiScale(1.08)">L</button>
-        <button data-scale="1.16" onclick="setUiScale(1.16)">XL</button>
+        <button data-scale="1.06" onclick="setUiScale(1.06)">L</button>
+        <button data-scale="1.12" onclick="setUiScale(1.12)">XL</button>
+        <button data-scale="1.18" onclick="setUiScale(1.18)">XXL</button>
+        <button data-scale="1.24" onclick="setUiScale(1.24)">XXXL</button>
+        <button data-scale="1.3" onclick="setUiScale(1.3)">Max</button>
       </div>
+      <div style="font-size:11.5px; color:var(--gray); margin-top:8px;">Smaller-than-default sizes were removed — they caused layout overflow on some screens.</div>
     </div>
 
     <div class="field">
@@ -1097,10 +1099,18 @@
 <script>
 /* ============ DISABLE ZOOM (double-tap & pinch) ============ */
 let __lastTouchEnd = 0;
+let __lastTouchTarget = null;
 document.addEventListener('touchend', function(e){
   const now = Date.now();
-  if(now - __lastTouchEnd <= 350){ e.preventDefault(); }
+  // Only block the synthetic zoom gesture when the SAME element is tapped twice
+  // quickly (a genuine double-tap). Checking time alone (regardless of target)
+  // was swallowing the click on any fast second tap on a *different* button —
+  // which is exactly normal fast use on an iPad, not a zoom attempt.
+  if(now - __lastTouchEnd <= 350 && e.target === __lastTouchTarget){
+    e.preventDefault();
+  }
   __lastTouchEnd = now;
+  __lastTouchTarget = e.target;
 }, {passive:false});
 document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
 document.addEventListener('dblclick', function(e){ e.preventDefault(); }, {passive:false});
@@ -1347,9 +1357,10 @@ function applyPalettePreset(index){
   toast(`"${p.name}" palette applied`);
 }
 
-/* --- UI scale (5 levels) --- */
+/* --- UI scale (6 levels, 1.0 and up only — smaller-than-default caused overflow) --- */
 const UI_SCALE_KEY = 'optic_ui_scale';
 function applyUiScale(scale){
+  scale = Math.max(1, Number(scale) || 1); // clamp — old saved values below 1.0 caused layout overflow
   document.documentElement.style.zoom = scale;
   document.querySelectorAll('#uiScaleSeg button').forEach(btn=>{
     btn.classList.toggle('active', Number(btn.dataset.scale) === Number(scale));
