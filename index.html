@@ -142,6 +142,9 @@
   .view{display:none;}
   .view.active{display:block; animation:rise .28s ease;}
   #view-products.active{display:flex; flex-direction:column; height:100%;}
+  #view-reports.active{display:flex; flex-direction:column; height:100%; min-height:0;}
+  #view-reports .page-head{flex-shrink:0;}
+  #view-reports .reports-scroll-area{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;}
   @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
 
   .products-fixed-head{flex-shrink:0;}
@@ -399,12 +402,16 @@
   .modal-close-btn:hover{background:var(--light-first); color:var(--text-dark);}
   .modal-close-btn:active{opacity:.8;}
   .modal h2{font-family:var(--font-display); font-size:19px; margin:0 0 18px; font-weight:800;}
+  #productModalOverlay .modal{padding:34px 32px;}
+  #productModalOverlay .modal-close-btn{top:24px; right:24px;}
   .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
 
   .sale-items{border:none; margin-bottom:14px;}
   .sale-item-card{border:1px solid #E4E7EE; border-radius:14px; padding:12px; margin-bottom:10px; background:#fff;}
   .sale-item-card:last-child{margin-bottom:0;}
   .line-product-input{width:100%; padding:10px 12px; font-size:13.5px; border:1px solid #E4E7EE; border-radius:10px; background:var(--light-first); color:var(--text-dark); margin-bottom:10px;}
+  .line-product-input.input-warning{border-color:var(--warning); box-shadow:0 0 0 1px var(--warning);}
+  .field-warning-note{color:var(--warning); font-size:11.5px; font-weight:600; margin:-4px 0 10px;}
   .line-suggestions{position:absolute; top:calc(100% - 6px); left:0; right:0; width:auto; z-index:30;}
   .sale-item-fields{display:grid; grid-template-columns:64px 90px 90px 1fr 34px; gap:8px; align-items:end;}
   .mini-label{display:block; font-size:9.5px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.3px; margin-bottom:4px;}
@@ -785,22 +792,23 @@
         <div class="page-head">
           <div><div class="eyebrow">Analytics</div><h1>Analytics</h1><p>Sales overview, tracked daily, monthly and yearly.</p></div>
         </div>
+        <div class="reports-scroll-area">
+          <div class="stat-grid" id="overviewStatGrid"></div>
 
-        <div class="stat-grid" id="overviewStatGrid"></div>
-
-        <div class="seg" style="max-width:420px;">
-          <button id="segDaily" class="active" onclick="setReportMode('daily')">Daily</button>
-          <button id="segMonthly" onclick="setReportMode('monthly')">Monthly</button>
-          <button id="segYearly" onclick="setReportMode('yearly')">Yearly</button>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><h3 id="reportTitle">Last 14 Days</h3></div>
-          <div class="bars" id="reportBars"></div>
-        </div>
-        <div class="stat-grid" id="reportStats" style="grid-template-columns:repeat(3,1fr);"></div>
-        <div class="panel">
-          <div class="panel-head"><h3>Breakdown</h3></div>
-          <div id="reportTableBox"></div>
+          <div class="seg" style="max-width:420px;">
+            <button id="segDaily" class="active" onclick="setReportMode('daily')">Daily</button>
+            <button id="segMonthly" onclick="setReportMode('monthly')">Monthly</button>
+            <button id="segYearly" onclick="setReportMode('yearly')">Yearly</button>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3 id="reportTitle">Last 14 Days</h3></div>
+            <div class="bars" id="reportBars"></div>
+          </div>
+          <div class="stat-grid" id="reportStats" style="grid-template-columns:repeat(3,1fr);"></div>
+          <div class="panel">
+            <div class="panel-head"><h3>Breakdown</h3></div>
+            <div id="reportTableBox"></div>
+          </div>
         </div>
       </div>
 
@@ -2586,12 +2594,14 @@ function renderSaleLines(){
     box.innerHTML = saleLines.map(line=>{
       const p = products.find(x=>x.id===line.productId);
       const displayValue = line.searchText || (p ? productSearchLabel(p) : '');
+      const isUnlinked = !line.productId && (line.searchText||'').trim();
       return `
       <div class="sale-item-card">
         <div style="position:relative;">
-          <input type="text" class="line-product-input" placeholder="Search product by name or SKU…" value="${escapeHtml(displayValue)}"
+          <input type="text" class="line-product-input${isUnlinked?' input-warning':''}" placeholder="Search product by name or SKU…" value="${escapeHtml(displayValue)}"
             oninput="handleLineProductSearch('${line.lineId}', this.value)" onfocus="handleLineProductSearch('${line.lineId}', this.value)">
           <div class="dropdown line-suggestions" id="lineSuggestions-${line.lineId}"></div>
+          ${isUnlinked ? `<div class="field-warning-note">Not linked yet — tap a suggestion above to select this product</div>` : ''}
         </div>
         <div class="sale-item-fields">
           <div><label class="mini-label">Qty</label><input type="number" min="1" value="${line.qty}" onchange="updateSaleLine('${line.lineId}','qty',this.value)"></div>
@@ -2654,6 +2664,18 @@ function submitSale(){
   if(products.length===0){ toast('Add a product first'); return; }
   const party = document.getElementById('partyName').value.trim();
   const date = document.getElementById('saleDate').value || todayStr();
+
+  // Guard against silently dropping items: if the user typed a product name/SKU
+  // into a line but never actually tapped a suggestion to link it, that line has
+  // no productId. Previously this was filtered out with zero warning, so the sale
+  // would save "successfully" while quietly missing an item the user thought they'd added.
+  const incompleteLines = saleLines.filter(l => !l.productId && (l.searchText||'').trim());
+  if(incompleteLines.length > 0){
+    renderSaleLines(); // so the red-border warning on the unlinked item is actually visible
+    toast(`"${incompleteLines[0].searchText}" isn't linked to a product yet — tap it from the dropdown list, or remove that item, before saving`);
+    return;
+  }
+
   const validLines = saleLines.filter(l=>l.productId && l.qty>0);
   if(validLines.length===0){ toast('Add at least one item'); return; }
 
