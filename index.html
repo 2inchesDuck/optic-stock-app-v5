@@ -270,20 +270,22 @@
 
   .field{margin-bottom:14px;}
 
-  /* ---------- NEW SALE: fit within one screen, no page scroll ---------- */
+  /* ---------- NEW SALE: two-panel layout, fit within one screen ---------- */
   #view-sale-new.active{display:flex; flex-direction:column; height:100%; min-height:0;}
   #view-sale-new .page-head{flex-shrink:0; margin-bottom:12px;}
-  #view-sale-new .sale-form-panel{
-    flex:1; min-height:0; display:flex; flex-direction:column;
-    padding:18px 24px; overflow:hidden;
+  #view-sale-new .sale-split-layout{
+    flex:1; min-height:0; display:grid; grid-template-columns:360px 1fr; gap:20px;
   }
-  #view-sale-new .sale-form-fixed{flex-shrink:0;}
-  #view-sale-new .sale-form-fixed .field{margin-bottom:10px;}
-  #view-sale-new .sale-items-field{
-    flex:1; min-height:140px; display:flex; flex-direction:column; margin-bottom:10px; overflow:hidden;
+  #view-sale-new .sale-panel-title{font-family:var(--font-display); font-size:16px; font-weight:800; margin:0 0 16px;}
+  #view-sale-new .sale-settings-panel{
+    display:flex; flex-direction:column; overflow-y:auto; padding:22px;
+  }
+  #view-sale-new .sale-settings-panel .field{margin-bottom:10px;}
+  #view-sale-new .sale-items-panel{
+    display:flex; flex-direction:column; overflow:hidden; padding:22px;
   }
   #view-sale-new .sale-items{
-    flex:1; min-height:0; overflow-y:auto; padding-right:2px; margin-bottom:8px; position:relative;
+    flex:1; min-height:0; overflow-y:auto; padding-right:2px; margin-bottom:10px; position:relative;
     transition:mask-position .1s linear, -webkit-mask-position .1s linear;
   }
   #view-sale-new .sale-items.has-more-below{
@@ -293,6 +295,11 @@
   #view-sale-new .add-line-btn{flex-shrink:0;}
   #view-sale-new .sale-total{padding:10px 4px 2px;}
   #view-sale-new .modal-actions{margin-top:10px;}
+  @media (max-width: 980px){
+    #view-sale-new .sale-split-layout{grid-template-columns:1fr; grid-auto-rows:min-content 1fr; overflow-y:auto;}
+    #view-sale-new .sale-settings-panel{overflow-y:visible; flex-shrink:0;}
+    #view-sale-new .sale-items-panel{min-height:320px;}
+  }
   .field label{display:block; font-size:12px; font-weight:700; color:var(--gray); margin-bottom:6px; letter-spacing:.2px;}
   .field input, .field select{width:100%; padding:11px 12px; border:1px solid #E1E4EC; border-radius:10px; font-size:14px; background:var(--light-first); color:var(--text-dark);}
   .field input[type="color"]{padding:4px; height:44px; cursor:pointer;}
@@ -716,39 +723,22 @@
         <div class="page-head">
           <div><div class="eyebrow" id="saleFormEyebrow">Point of Sale</div><h1 id="saleFormTitle">New Sale</h1><p id="saleFormSubtitle">Record a sale to a walk-in customer or a company account.</p></div>
         </div>
-        <div class="panel sale-form-panel" style="max-width:880px;">
-          <div class="sale-form-fixed">
+        <div class="sale-split-layout">
+          <div class="panel sale-settings-panel">
+            <h3 class="sale-panel-title">Sale Settings</h3>
             <div class="seg" style="max-width:460px;">
-              <button id="segCustomer" class="active" onclick="setSaleType('customer')"><span class="seg-icon"></span>Sale for Customer</button>
-              <button id="segCompany" onclick="setSaleType('company')"><span class="seg-icon"></span>Sale for Company</button>
+              <button id="segCustomer" class="active" onclick="setSaleType('customer')"><span class="seg-icon"></span>Customer</button>
+              <button id="segCompany" onclick="setSaleType('company')"><span class="seg-icon"></span>Company</button>
             </div>
-            <div class="field-row">
-              <div class="field" style="position:relative;">
-                <label id="partyLabel">Customer Name</label>
-                <input type="text" id="partyName" placeholder="e.g. Sok Dara" oninput="handlePartyInput(this.value)" onfocus="handlePartyInput(this.value)">
-                <div class="dropdown" id="partySuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
-              </div>
-              <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
+            <div class="field" style="position:relative;">
+              <label id="partyLabel">Customer Name</label>
+              <input type="text" id="partyName" placeholder="e.g. Sok Dara" oninput="handlePartyInput(this.value)" onfocus="handlePartyInput(this.value)">
+              <div class="dropdown" id="partySuggestions" style="position:absolute; top:100%; left:0; right:0; width:auto;"></div>
             </div>
-          </div>
-          <div class="field sale-items-field">
-            <div class="row-flex" style="justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <label style="margin:0;">Items</label>
-              <div class="row-flex" style="gap:8px;">
-                <span style="font-size:11.5px; color:var(--gray); font-weight:600;">Discount type:</span>
-                <div class="seg" id="saleDiscountTypeSeg" style="max-width:120px;">
-                  <button data-type="fixed" class="active" onclick="setSaleDiscountType('fixed')">$</button>
-                  <button data-type="percent" onclick="setSaleDiscountType('percent')">%</button>
-                </div>
-              </div>
-            </div>
-            <div class="sale-items" id="saleItemsBox"></div>
-            <button class="add-line-btn" onclick="addSaleLine()">＋ Add item</button>
-          </div>
-          <div class="sale-form-fixed">
+            <div class="field"><label>Sale Date</label><input type="date" id="saleDate"></div>
             <div class="field">
               <label>Payment Status</label>
-              <div class="seg" id="paymentStatusSeg" style="max-width:460px;">
+              <div class="seg" id="paymentStatusSeg">
                 <button data-status="paid" class="active" onclick="setPaymentStatus('paid')">Paid in Full</button>
                 <button data-status="partial" onclick="setPaymentStatus('partial')">Partially Paid</button>
                 <button data-status="unpaid" onclick="setPaymentStatus('unpaid')">Unpaid</button>
@@ -765,6 +755,20 @@
               <button class="btn btn-ghost" onclick="clearSaleForm()">Clear</button>
               <button class="btn btn-primary" id="saveSaleBtn" onclick="submitSale()">Save Sale</button>
             </div>
+          </div>
+          <div class="panel sale-items-panel">
+            <div class="row-flex" style="justify-content:space-between; align-items:center; margin-bottom:12px; flex-shrink:0;">
+              <h3 class="sale-panel-title" style="margin:0;">Items</h3>
+              <div class="row-flex" style="gap:8px;">
+                <span style="font-size:11.5px; color:var(--gray); font-weight:600;">Discount type:</span>
+                <div class="seg" id="saleDiscountTypeSeg" style="max-width:120px; margin-bottom:0;">
+                  <button data-type="fixed" class="active" onclick="setSaleDiscountType('fixed')">$</button>
+                  <button data-type="percent" onclick="setSaleDiscountType('percent')">%</button>
+                </div>
+              </div>
+            </div>
+            <div class="sale-items" id="saleItemsBox"></div>
+            <button class="add-line-btn" onclick="addSaleLine()">＋ Add item</button>
           </div>
         </div>
       </div>
@@ -973,16 +977,9 @@
     </div>
     <div class="field-row">
       <div class="field"><label>Cost Price ($)</label><input type="number" id="pCost" min="0" step="0.01" value="0"></div>
-      <div class="field"><label>Customer Price ($)</label><input type="number" id="pPriceCustomer" min="0" step="0.01" value="0" oninput="syncCompanyPriceIfLinked()"></div>
+      <div class="field"><label>Customer Price ($)</label><input type="number" id="pPriceCustomer" min="0" step="0.01" value="0"></div>
     </div>
-    <div class="field">
-      <label>Company Price ($)</label>
-      <input type="number" id="pPriceCompany" min="0" step="0.01" value="0" disabled>
-      <label class="checkbox-row" style="margin-top:6px;">
-        <input type="checkbox" id="pPriceSame" checked onchange="toggleCompanyPriceLink()">
-        <span>Same as customer price</span>
-      </label>
-    </div>
+    <div style="font-size:11.5px; color:var(--gray); margin:-6px 0 14px;">Company sales are priced at Cost Price — Customer Price is used for regular customer sales.</div>
     <div id="lensFieldsWrap" class="reveal-wrap">
       <div class="field">
         <label>SPH (Sphere): <span id="pSphValue" class="mono">+0.00</span></label>
@@ -2259,21 +2256,12 @@ function resetLensFields(){
   document.getElementById('pAdd').value = 0;
   showLensFields(false);
 }
-function toggleCompanyPriceLink(){
-  const same = document.getElementById('pPriceSame').checked;
-  document.getElementById('pPriceCompany').disabled = same;
-  if(same) syncCompanyPriceIfLinked();
-}
-function syncCompanyPriceIfLinked(){
-  if(document.getElementById('pPriceSame').checked){
-    document.getElementById('pPriceCompany').value = document.getElementById('pPriceCustomer').value;
-  }
-}
-// Returns the correct price for a product given the sale type ('customer' or 'company'),
+// Returns the correct price for a product given the sale type ('customer' or 'company').
+// Company sales are priced at Cost Price; customer sales use the Customer Price field,
 // falling back to the legacy single `price` field for products saved before this split existed.
 function priceFor(p, type){
   if(!p) return 0;
-  if(type === 'company') return (p.priceCompany !== undefined && p.priceCompany !== null) ? p.priceCompany : (p.price || 0);
+  if(type === 'company') return p.cost || 0;
   return (p.priceCustomer !== undefined && p.priceCustomer !== null) ? p.priceCustomer : (p.price || 0);
 }
 function openProductModal(id){
@@ -2292,13 +2280,7 @@ function openProductModal(id){
     document.getElementById('pSku').value = p.sku;
     document.getElementById('pQty').value = p.qty;
     document.getElementById('pCost').value = p.cost;
-    const custPrice = (p.priceCustomer !== undefined && p.priceCustomer !== null) ? p.priceCustomer : (p.price || 0);
-    const compPrice = (p.priceCompany !== undefined && p.priceCompany !== null) ? p.priceCompany : (p.price || 0);
-    document.getElementById('pPriceCustomer').value = custPrice;
-    document.getElementById('pPriceCompany').value = compPrice;
-    const same = Number(custPrice) === Number(compPrice);
-    document.getElementById('pPriceSame').checked = same;
-    document.getElementById('pPriceCompany').disabled = same;
+    document.getElementById('pPriceCustomer').value = (p.priceCustomer !== undefined && p.priceCustomer !== null) ? p.priceCustomer : (p.price || 0);
     document.getElementById('pNote').value = p.note || '';
     const hasSph = p.sph !== undefined && p.sph !== null;
     const hasLegacyRx = !hasSph && p.prescription !== undefined && p.prescription !== null;
@@ -2324,9 +2306,6 @@ function openProductModal(id){
     document.getElementById('pQty').value = 0;
     document.getElementById('pCost').value = 0;
     document.getElementById('pPriceCustomer').value = 0;
-    document.getElementById('pPriceCompany').value = 0;
-    document.getElementById('pPriceSame').checked = true;
-    document.getElementById('pPriceCompany').disabled = true;
     resetLensFields();
   }
   renderCategoryButtons();
@@ -2349,14 +2328,13 @@ function saveProduct(){
   if(cat === '__new__'){ toast('Please confirm the new category first'); return; }
   const id = document.getElementById('productId').value;
   const priceCustomer = Math.max(0, Number(document.getElementById('pPriceCustomer').value) || 0);
-  const priceCompany = document.getElementById('pPriceSame').checked ? priceCustomer : Math.max(0, Number(document.getElementById('pPriceCompany').value) || 0);
   const data = {
     name, category: cat,
     note: document.getElementById('pNote').value.trim(),
     sku: document.getElementById('pSku').value.trim(),
     qty: Math.max(0, Number(document.getElementById('pQty').value) || 0),
     cost: Number(document.getElementById('pCost').value) || 0,
-    priceCustomer, priceCompany,
+    priceCustomer,
     price: priceCustomer, // legacy field, kept in sync as a fallback for any older code path
   };
   if(document.getElementById('lensFieldsWrap').classList.contains('open')){
@@ -2449,8 +2427,8 @@ function renderProducts(){
 
   const costTh = hideCostPrice ? '' : '<th class="right">Cost</th>';
   const costTd = p => hideCostPrice ? '' : `<td class="right mono">${fmt(p.cost)}</td>`;
-  const priceTh = '<th class="right">Cust. Price</th><th class="right">Corp. Price</th>';
-  const priceTd = p => `<td class="right mono">${fmt(priceFor(p,'customer'))}</td><td class="right mono">${fmt(priceFor(p,'company'))}</td>`;
+  const priceTh = '<th class="right">Cust. Price</th>';
+  const priceTd = p => `<td class="right mono">${fmt(priceFor(p,'customer'))}</td>`;
 
   if(productViewMode==='progressive'){
     box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th><th class="center">Side</th>${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
