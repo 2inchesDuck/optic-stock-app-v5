@@ -2414,8 +2414,8 @@ function renderProducts(){
     box.innerHTML = `<div class="empty"><h4>No matches</h4><p>${emptyMsg} Try a different search, category, or view.</p></div>`;
     return;
   }
-  const rowStart = p => `<tr>
-      <td>${ringHtml(p)}</td>
+  const rowStart = (p,i) => `<tr>
+      <td class="mono muted" style="width:44px;">${i+1}</td>
       <td><strong>${p.name}</strong>${p.note?`<div class="muted" style="font-size:12px;">${escapeHtml(p.note.slice(0,50))}${p.note.length>50?'…':''}</div>`:''}</td>
       <td>${chipHtml(categoryKey(p.category), categoryIcon(p.category))} <span style="vertical-align:middle; margin-left:4px;">${p.category}</span></td>
       <td class="mono muted">${p.sku||'—'}</td>`;
@@ -2425,18 +2425,21 @@ function renderProducts(){
       </div></td>
     </tr>`;
 
+  const stockTh = '<th>Stock</th>';
+  const stockTd = p => `<td>${ringHtml(p)}</td>`;
   const costTh = hideCostPrice ? '' : '<th class="right">Cost</th>';
   const costTd = p => hideCostPrice ? '' : `<td class="right mono">${fmt(p.cost)}</td>`;
   const priceTh = '<th class="right">Cust. Price</th>';
   const priceTd = p => `<td class="right mono">${fmt(priceFor(p,'customer'))}</td>`;
 
   if(productViewMode==='progressive'){
-    box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th><th class="center">Side</th>${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
-    ${list.map(p=>`${rowStart(p)}
+    box.innerHTML = `<table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th><th class="center">Side</th>${stockTh}${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
+    ${list.map((p,i)=>`${rowStart(p,i)}
       <td class="mono">${sphDisplay(p)}</td>
       <td class="mono">${cylDisplay(p)}</td>
       <td class="mono">${Number(p.add||0).toFixed(2)}</td>
       <td class="center">${pillHtml(p.lr==='R'?'violet':'corporate', p.lr||'L')}</td>
+      ${stockTd(p)}
       ${costTd(p)}
       ${priceTd(p)}
       ${rowActions(p)}`).join('')}
@@ -2445,11 +2448,12 @@ function renderProducts(){
   }
 
   if(productViewMode==='bifocal'){
-    box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th>${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
-    ${list.map(p=>`${rowStart(p)}
+    box.innerHTML = `<table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th><th>ADD</th>${stockTh}${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
+    ${list.map((p,i)=>`${rowStart(p,i)}
       <td class="mono">${sphDisplay(p)}</td>
       <td class="mono">${cylDisplay(p)}</td>
       <td class="mono">${Number(p.add||0).toFixed(2)}</td>
+      ${stockTd(p)}
       ${costTd(p)}
       ${priceTd(p)}
       ${rowActions(p)}`).join('')}
@@ -2458,10 +2462,11 @@ function renderProducts(){
   }
 
   if(productViewMode==='lenses'){
-    box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th>${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
-    ${list.map(p=>`${rowStart(p)}
+    box.innerHTML = `<table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>SKU</th><th>SPH</th><th>CYL</th>${stockTh}${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
+    ${list.map((p,i)=>`${rowStart(p,i)}
       <td class="mono">${sphDisplay(p)}</td>
       <td class="mono">${cylDisplay(p)}</td>
+      ${stockTd(p)}
       ${costTd(p)}
       ${priceTd(p)}
       ${rowActions(p)}`).join('')}
@@ -2469,9 +2474,10 @@ function renderProducts(){
     return;
   }
 
-  box.innerHTML = `<table><thead><tr><th>Stock</th><th>Product</th><th>Category</th><th>SKU</th>${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
-  ${list.map(p=>`${rowStart(p)}
-    ${costTd(p)}
+  box.innerHTML = `<table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>SKU</th>${stockTh}${costTh}${priceTh}<th class="center">Actions</th></tr></thead><tbody>
+  ${list.map((p,i)=>`${rowStart(p,i)}
+    ${stockTd(p)}
+      ${costTd(p)}
     ${priceTd(p)}
     ${rowActions(p)}`).join('')}
   </tbody></table>`;
@@ -3258,14 +3264,18 @@ function renderOutOfStockWidget(){
 }
 function renderCategoryBreakdownWidget(){
   if(products.length===0) return `<p class="muted" style="font-size:13.5px;">No products yet.</p>`;
-  const counts = {};
-  products.forEach(p=>{ counts[p.category] = (counts[p.category]||0) + 1; });
-  const rows = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  return rows.map(([cat,count])=>`
+  const stats = {};
+  products.forEach(p=>{
+    const s = stats[p.category] || (stats[p.category] = {units:0, products:0});
+    s.units += Math.max(0, Number(p.qty) || 0);
+    s.products += 1;
+  });
+  const rows = Object.entries(stats).sort((a,b)=>b[1].units - a[1].units);
+  return rows.map(([cat,s])=>`
     <button type="button" class="list-row" style="width:100%; text-align:left; border:none; background:transparent; cursor:pointer;" onclick="goToProductsFiltered('${cat.replace(/'/g,"\\'")}')">
       ${chipHtml(categoryKey(cat), categoryIcon(cat))}
-      <div class="list-main"><div class="t1">${escapeHtml(cat)}</div></div>
-      <div class="list-side"><div class="amt">${count} product${count===1?'':'s'}</div></div>
+      <div class="list-main"><div class="t1">${escapeHtml(cat)}</div><div class="t2">${s.products} product${s.products===1?'':'s'}</div></div>
+      <div class="list-side"><div class="amt">${s.units} in stock</div></div>
     </button>
   `).join('');
 }
